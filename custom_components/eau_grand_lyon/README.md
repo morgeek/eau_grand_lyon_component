@@ -67,4 +67,3 @@ Ce projet est sous licence MIT - voir le fichier LICENSE pour plus de détails.
 ## Avertissement
 
 Cette intégration n'est pas officiellement affiliée à Eau du Grand Lyon ou Grand Lyon Métropole. Utilisez à vos propres risques.</content>
-<parameter name="filePath">/Users/keegrom/Downloads/eau_grand_lyon_component/README.md
