@@ -27,15 +27,15 @@ Cette intégration vous permet de surveiller votre utilisation de l'eau et les i
 - L'attribut `mois_manquants` sur l'index cumulatif liste les trous dans l'historique (compteur remplacé, données API absentes...)
 
 ### Consommations journalières
-- L'intégration tente automatiquement 2 endpoints API possibles
-- Si votre compteur est compatible Téléo/TIC, les capteurs "7 jours" et "30 jours" deviennent disponibles
+- L'intégration tente automatiquement 2 endpoints API possibles si un jour cela est disponible...
+- Si compteur est compatible Téléo/TIC, les capteurs "7 jours" et "30 jours" deviennent disponibles
 - Sinon, ils restent silencieux (aucune erreur)
 
-Elle inclut également un bouton pour déclencher manuellement une mise à jour des données.
+Inclut également un bouton pour déclencher manuellement une mise à jour des données.
 
 ### Dashboard Lovelace
 - Template complet : `lovelace/dashboard.yaml`
-- Template avec notifications : `lovelace/dashboard_notifications.yaml`
+- Template avec notifications : `lovelace/dashboard_notifications.yaml`*(temporairement désactivé)*
 - Graphique historique sur 24 mois, comparaison N-1, coûts, alerte conditionnelle
 - Boutons de test pour les notifications Pushover/Telegram/vocales
 - Vue journalière si les données sont disponibles
@@ -52,12 +52,11 @@ Pour activer l'intégration Energy :
 3. Les statistiques se généreront automatiquement
 
 ### Notifications Avancées
+⚠️ **Note** : Les fonctionnalités de notifications sont temporairement désactivées en raison d'un problème d'import. Elles seront réactivées dans une future mise à jour.
+
 - **Pushover/Telegram intégrés** : Notifications push personnalisées avec priorité *(temporairement désactivé)*
 - **Alertes vocales Google Home/Alexa** : Annonces vocales pour les situations critiques *(temporairement désactivé)*
 - **Alertes intelligentes automatiques** : Détection automatique de fuites, consommation élevée, etc. *(temporairement désactivé)*
-
-⚠️ **Note** : Les fonctionnalités de notifications sont temporairement désactivées en raison d'un problème d'import. Elles seront réactivées dans une future mise à jour.
-- **Résumé quotidien** : Rapport automatique de consommation
 
 Pour activer les notifications :
 1. Configurez Pushover/Telegram dans `configuration.yaml` (voir `lovelace/notification_config.yaml`)
