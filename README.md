@@ -138,37 +138,13 @@ Les tests couvrent :
 
 ### Fonctionnalités à venir
 
-1. **Export de données**
-   - Export CSV de l'historique complet
-   - API REST pour accéder aux données depuis d'autres intégrations
-
-2. **Notifications avancées**
-   - Intégration Pushover/Telegram pour alertes personnalisées
-   - Notifications vocales via Google Home/Alexa
-
-3. **IA & Prédictions**
-   - Prédiction de consommation basée sur l'historique
-   - Alertes intelligentes (détection fuite avancée)
-   - Recommandations d'économie
-
-4. **Multi-utilisateurs**
+**Multi-utilisateurs**
    - Support pour plusieurs comptes utilisateur
    - Partage de données entre membres de la famille
 
-6. **API Webhook**
-   - Webhooks pour mises à jour en temps réel
-   - Intégration avec services externes (facturation, etc.)
-
-7. **Mobile App**
-   - Widget iOS/Android pour suivi rapide
-   - Notifications push natives
-
 ### Contributions
 
-Les contributions sont les bienvenues ! N'hésitez pas à :
-- Ouvrir des issues pour signaler des bugs
-- Proposer des features via les discussions
-- Soumettre des PR avec tests
+Les contributions sont les bienvenues ! N'hésitez pas à proposer des features
 
 ## Licence
 
