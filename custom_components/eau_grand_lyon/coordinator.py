@@ -60,6 +60,7 @@ class EauGrandLyonCoordinator(DataUpdateCoordinator[dict]):
                 "consommation_mois_precedent": float | None,
                 "label_mois_precedent":        str | None,
                 "consommation_annuelle":       float,
+                "consommation_cumulee_annee": float,
                 "consommation_n1":             float | None,
                 "label_n1":                    str | None,
                 "mois_manquants":              list[str],
@@ -265,6 +266,14 @@ class EauGrandLyonCoordinator(DataUpdateCoordinator[dict]):
             last_12 = consos[-12:] if len(consos) >= 12 else consos
             conso_annuelle = round(sum(e["consommation_m3"] for e in last_12), 1)
 
+            # Consommation cumulée année courante
+            current_year = datetime.now().year
+            conso_cumulee_annee = 0.0
+            for e in consos:
+                if e.get("annee") == current_year:
+                    conso_cumulee_annee += e["consommation_m3"]
+            conso_cumulee_annee = round(conso_cumulee_annee, 1)
+
             # Comparaison N-1
             conso_n1: float | None = None
             label_n1: str | None = None
@@ -313,6 +322,7 @@ class EauGrandLyonCoordinator(DataUpdateCoordinator[dict]):
                 "consommation_mois_precedent": conso_precedent,
                 "label_mois_precedent": label_precedent,
                 "consommation_annuelle": conso_annuelle,
+                "consommation_cumulee_annee": conso_cumulee_annee,
                 "consommation_n1": conso_n1,
                 "label_n1": label_n1,
                 "mois_manquants": mois_manquants,

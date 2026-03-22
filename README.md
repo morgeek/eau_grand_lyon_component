@@ -33,14 +33,33 @@ Cette intégration vous permet de surveiller votre utilisation de l'eau et les i
 Elle inclut également un bouton pour déclencher manuellement une mise à jour des données.
 
 ### Dashboard Lovelace
-- Template prêt à importer : `lovelace/dashboard.yaml`
+- Template complet : `lovelace/dashboard.yaml`
+- Template avec notifications : `lovelace/dashboard_notifications.yaml`
 - Graphique historique sur 24 mois, comparaison N-1, coûts, alerte conditionnelle
+- Boutons de test pour les notifications Pushover/Telegram/vocales
 - Vue journalière si les données sont disponibles
 
-### Automatisations
-- Template d'automatisation : `lovelace/automation_refresh.yaml`
-- Rafraîchissement quotidien à 6h du matin
-- Alerte de dépassement de consommation paramétrable
+### Intégration Energy Dashboard
+- **Sensors optimisés** : Sensors dédiés avec `state_class: total_increasing` pour de meilleures statistiques
+- **Coûts énergétiques automatiques** : Calcul automatique des coûts basé sur le tarif configuré
+- **Stats par période** : Statistiques automatiques générées par HA pour tous les sensors
+- **Configuration** : Template de configuration dans `lovelace/energy_config.yaml`
+
+Pour activer l'intégration Energy :
+1. Activez les sensors "Consommation eau (Énergie)" et "Coûts eau (Énergie)" dans les entités
+2. Ajoutez la configuration dans `configuration.yaml` ou via l'interface Énergie
+3. Les statistiques se généreront automatiquement
+
+### Notifications Avancées
+- **Pushover/Telegram intégrés** : Notifications push personnalisées avec priorité
+- **Alertes vocales Google Home/Alexa** : Annonces vocales pour les situations critiques
+- **Alertes intelligentes automatiques** : Détection automatique de fuites, consommation élevée, etc.
+- **Résumé quotidien** : Rapport automatique de consommation
+
+Pour activer les notifications :
+1. Configurez Pushover/Telegram dans `configuration.yaml` (voir `lovelace/notification_config.yaml`)
+2. Importez les automatisations depuis `lovelace/smart_notifications.yaml`
+3. Configurez les devices TTS pour les alertes vocales
 
 ## Prérequis
 
@@ -75,12 +94,81 @@ L'intégration récupérera automatiquement les données toutes les 6 heures (ca
 
 Une fois configuré, les capteurs apparaîtront dans votre tableau de bord Home Assistant. Vous pouvez les utiliser dans des automatisations, des tableaux de bord, ou de toute autre manière que vous utilisez les capteurs dans Home Assistant.
 
+### Notifications Intelligentes
+
+L'intégration inclut un système complet de notifications intelligentes. Consultez la [documentation détaillée](docs/NOTIFICATIONS.md) pour :
+- Configuration des services Pushover/Telegram
+- Paramétrage des alertes vocales Google Home/Alexa
+- Automatisations prédéfinies pour la détection de fuites
+- Personnalisation des seuils d'alerte
+
 ## Dépannage
 
 - **Problèmes d'authentification** : Assurez-vous que votre email et mot de passe sont corrects. L'intégration utilise l'API officielle d'Eau du Grand Lyon.
 - **Aucune donnée** : Les données eau sont mises à jour mensuellement. Si aucune donnée n'apparaît, vérifiez le statut de votre contrat.
 - **Erreurs** : Vérifiez les journaux Home Assistant pour tout message d'erreur lié à l'intégration.
 
+
+## Tests
+
+Cette intégration inclut une suite complète de tests unitaires pour assurer la qualité du code. Les tests sont disponibles dans le dépôt de développement mais ne sont pas inclus dans les releases pour garder le package léger.
+
+### Pour les développeurs
+
+Si vous souhaitez contribuer au développement :
+
+1. Clonez le dépôt complet avec les tests
+2. Installez les dépendances de développement :
+   ```bash
+   pip install -e ".[test]"
+   ```
+3. Exécutez les tests :
+   ```bash
+   pytest tests/ -v
+   ```
+
+Les tests couvrent :
+- Authentification API et gestion d'erreurs
+- Récupération des données contrats/consommations
+- Coordinator avec rate limiting et cache
+- Sensors et états des entités
+- Logique des notifications intelligentes
+
+## Roadmap & Suggestions de Features
+
+### Fonctionnalités à venir
+
+1. **Export de données**
+   - Export CSV de l'historique complet
+   - API REST pour accéder aux données depuis d'autres intégrations
+
+2. **Notifications avancées**
+   - Intégration Pushover/Telegram pour alertes personnalisées
+   - Notifications vocales via Google Home/Alexa
+
+3. **IA & Prédictions**
+   - Prédiction de consommation basée sur l'historique
+   - Alertes intelligentes (détection fuite avancée)
+   - Recommandations d'économie
+
+4. **Multi-utilisateurs**
+   - Support pour plusieurs comptes utilisateur
+   - Partage de données entre membres de la famille
+
+6. **API Webhook**
+   - Webhooks pour mises à jour en temps réel
+   - Intégration avec services externes (facturation, etc.)
+
+7. **Mobile App**
+   - Widget iOS/Android pour suivi rapide
+   - Notifications push natives
+
+### Contributions
+
+Les contributions sont les bienvenues ! N'hésitez pas à :
+- Ouvrir des issues pour signaler des bugs
+- Proposer des features via les discussions
+- Soumettre des PR avec tests
 
 ## Licence
 

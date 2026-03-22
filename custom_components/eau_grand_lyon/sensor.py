@@ -36,6 +36,8 @@ async def async_setup_entry(
     for ref, _contract in (coordinator.data or {}).get("contracts", {}).items():
         # ── Tableau de bord Énergie HA ────────────────────────────────
         entities.append(EauGrandLyonIndexSensor(coordinator, entry, ref))
+        entities.append(EauGrandLyonEnergyWaterSensor(coordinator, entry, ref))
+        entities.append(EauGrandLyonEnergyCostSensor(coordinator, entry, ref))
         # ── Consommations mensuelles ──────────────────────────────────
         entities.append(
             EauGrandLyonConsommationSensor(coordinator, entry, ref, "courant")
@@ -50,6 +52,7 @@ async def async_setup_entry(
         # ── Coûts estimés ─────────────────────────────────────────────
         entities.append(EauGrandLyonCoutMoisSensor(coordinator, entry, ref))
         entities.append(EauGrandLyonCoutAnnuelSensor(coordinator, entry, ref))
+        entities.append(EauGrandLyonCoutCumuleSensor(coordinator, entry, ref))
         entities.append(EauGrandLyonEconomieSensor(coordinator, entry, ref))
         entities.append(EauGrandLyonLeakAlertSensor(coordinator, entry, ref))
         # ── Compte & contrat ──────────────────────────────────────────
@@ -224,7 +227,7 @@ class EauGrandLyonConsommationAnnuelleSensor(_EauGrandLyonBase):
     """Consommation totale des 12 derniers mois (m³)."""
 
     _attr_device_class = SensorDeviceClass.WATER
-    _attr_state_class = SensorStateClass.TOTAL
+    _attr_state_class = SensorStateClass.TOTAL_INCREASING
     _attr_native_unit_of_measurement = "m³"
     _attr_icon = "mdi:water-outline"
     _attr_name = "Consommation annuelle (12 mois)"
@@ -368,7 +371,7 @@ class EauGrandLyonCoutAnnuelSensor(_EauGrandLyonBase):
     """Coût estimé des 12 derniers mois (€)."""
 
     _attr_device_class = SensorDeviceClass.MONETARY
-    _attr_state_class = SensorStateClass.TOTAL
+    _attr_state_class = SensorStateClass.TOTAL_INCREASING
     _attr_native_unit_of_measurement = "EUR"
     _attr_icon = "mdi:currency-eur"
     _attr_name = "Coût estimé annuel (12 mois)"
@@ -389,6 +392,40 @@ class EauGrandLyonCoutAnnuelSensor(_EauGrandLyonBase):
             "consommation_annuelle_m3": c.get("consommation_annuelle"),
             "tarif_appliqué_eur_m3": c.get("tarif_m3"),
             "note": "Estimation — modifiez le tarif dans les options de l'intégration.",
+        }
+
+
+class EauGrandLyonCoutCumuleSensor(_EauGrandLyonBase):
+    """Coût cumulé depuis le début de l'année (€)."""
+
+    _attr_device_class = SensorDeviceClass.MONETARY
+    _attr_state_class = SensorStateClass.TOTAL_INCREASING
+    _attr_native_unit_of_measurement = "EUR"
+    _attr_icon = "mdi:currency-eur"
+    _attr_name = "Coût cumulé année"
+    _attr_suggested_display_precision = 2
+    _attr_entity_registry_enabled_default = False  # désactivé par défaut
+
+    def __init__(self, coordinator, entry, contract_ref):
+        super().__init__(coordinator, entry, contract_ref)
+        self._attr_unique_id = f"{entry.entry_id}_{contract_ref}_cout_cumule"
+
+    @property
+    def native_value(self) -> float | None:
+        # Calcule le coût cumulé depuis le début de l'année
+        c = self._contract
+        conso_cumulee = c.get("consommation_cumulee_annee", 0)
+        tarif = c.get("tarif_m3", 0)
+        return round(conso_cumulee * tarif, 2) if conso_cumulee and tarif else None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        c = self._contract
+        return {
+            "consommation_cumulee_m3": c.get("consommation_cumulee_annee"),
+            "tarif_appliqué_eur_m3": c.get("tarif_m3"),
+            "last_reset": f"{datetime.now().year}-01-01",
+            "note": "Coût cumulé depuis le 1er janvier",
         }
 
 
@@ -548,6 +585,73 @@ class EauGrandLyonDateEcheanceSensor(_EauGrandLyonBase):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         return {"date_début": self._contract.get("date_effet")}
+
+
+# ══════════════════════════════════════════════════════════════════════
+# Tableau de bord Énergie HA
+# ══════════════════════════════════════════════════════════════════════
+
+class EauGrandLyonEnergyWaterSensor(_EauGrandLyonBase):
+    """Consommation d'eau pour le tableau de bord Énergie (en m³ cumulés)."""
+
+    _attr_device_class = SensorDeviceClass.WATER
+    _attr_state_class = SensorStateClass.TOTAL_INCREASING
+    _attr_native_unit_of_measurement = "m³"
+    _attr_icon = "mdi:water"
+    _attr_name = "Consommation eau (Énergie)"
+    _attr_suggested_display_precision = 1
+    _attr_entity_registry_enabled_default = False  # désactivé par défaut
+
+    def __init__(self, coordinator, entry, contract_ref):
+        super().__init__(coordinator, entry, contract_ref)
+        self._attr_unique_id = f"{entry.entry_id}_{contract_ref}_energy_water"
+
+    @property
+    def native_value(self) -> float | None:
+        # Utilise la consommation annuelle comme valeur totale croissante
+        return self._contract.get("consommation_annuelle")
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        c = self._contract
+        return {
+            "device_class": "water",
+            "state_class": "total_increasing",
+            "last_reset": c.get("date_reset_conso", "2024-01-01"),
+            "note": "Sensor optimisé pour le tableau de bord Énergie HA",
+        }
+
+
+class EauGrandLyonEnergyCostSensor(_EauGrandLyonBase):
+    """Coûts énergétiques pour le tableau de bord Énergie (€ cumulés)."""
+
+    _attr_device_class = SensorDeviceClass.MONETARY
+    _attr_state_class = SensorStateClass.TOTAL_INCREASING
+    _attr_native_unit_of_measurement = "EUR"
+    _attr_icon = "mdi:currency-eur"
+    _attr_name = "Coûts eau (Énergie)"
+    _attr_suggested_display_precision = 2
+    _attr_entity_registry_enabled_default = False  # désactivé par défaut
+
+    def __init__(self, coordinator, entry, contract_ref):
+        super().__init__(coordinator, entry, contract_ref)
+        self._attr_unique_id = f"{entry.entry_id}_{contract_ref}_energy_cost"
+
+    @property
+    def native_value(self) -> float | None:
+        # Utilise le coût annuel comme valeur totale croissante
+        return self._contract.get("cout_annuel_eur")
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        c = self._contract
+        return {
+            "device_class": "monetary",
+            "state_class": "total_increasing",
+            "last_reset": c.get("date_reset_cout", "2024-01-01"),
+            "tarif_eur_m3": c.get("tarif_m3"),
+            "note": "Sensor optimisé pour le tableau de bord Énergie HA",
+        }
 
 
 # ══════════════════════════════════════════════════════════════════════

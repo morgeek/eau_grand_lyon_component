@@ -6,3 +6,12 @@ __pycache__/
 .venv
 env/
 venv/
+
+# Tests et fichiers de développement
+tests/
+test.sh
+pyproject.toml
+.pytest_cache/
+.coverage
+htmlcov/
+*.log

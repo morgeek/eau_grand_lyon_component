@@ -9,6 +9,7 @@ from homeassistant.core import HomeAssistant
 
 from .const import DOMAIN
 from .coordinator import EauGrandLyonCoordinator
+from .notify import async_setup_services
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -24,6 +25,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
+    # Configuration des services de notifications intelligentes
+    await async_setup_services(hass)
 
     # Rechargement automatique si les options changent (intervalle de mise à jour)
     entry.async_on_unload(entry.add_update_listener(_async_update_options))

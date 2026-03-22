@@ -89,6 +89,77 @@ Une fois configuré, les capteurs apparaîtront dans votre tableau de bord Home 
 - **Erreurs** : Vérifiez les journaux Home Assistant pour tout message d'erreur lié à l'intégration.
 
 
+## Tests
+
+Cette intégration inclut une suite complète de tests unitaires.
+
+### Exécution des tests
+
+```bash
+# Installation des dépendances de test
+pip install -e ".[test]"
+
+# Exécution des tests
+pytest tests/ -v
+
+# Avec couverture de code
+pytest tests/ --cov=custom_components.eau_grand_lyon --cov-report=html
+```
+
+### Script rapide
+
+```bash
+./test.sh
+```
+
+Les tests couvrent :
+- Authentification API et gestion d'erreurs
+- Récupération des données contrats/consommations
+- Coordinator avec rate limiting et cache
+- Sensors et états des entités
+- Gestion des erreurs réseau/WAF
+
+## Roadmap & Suggestions de Features
+
+### Fonctionnalités à venir
+
+1. **Export de données**
+   - Export CSV de l'historique complet
+   - API REST pour accéder aux données depuis d'autres intégrations
+
+2. **Notifications avancées**
+   - Intégration Pushover/Telegram pour alertes personnalisées
+   - Notifications vocales via Google Home/Alexa
+
+3. **Dashboard Energy HA**
+   - Intégration native avec le tableau de bord Énergie
+   - Calcul automatique des coûts énergétiques
+   - Statistiques de consommation par période
+
+4. **IA & Prédictions**
+   - Prédiction de consommation basée sur l'historique
+   - Alertes intelligentes (détection fuite avancée)
+   - Recommandations d'économie
+
+5. **Multi-utilisateurs**
+   - Support pour plusieurs comptes utilisateur
+   - Partage de données entre membres de la famille
+
+6. **API Webhook**
+   - Webhooks pour mises à jour en temps réel
+   - Intégration avec services externes (facturation, etc.)
+
+7. **Mobile App**
+   - Widget iOS/Android pour suivi rapide
+   - Notifications push natives
+
+### Contributions
+
+Les contributions sont les bienvenues ! N'hésitez pas à :
+- Ouvrir des issues pour signaler des bugs
+- Proposer des features via les discussions
+- Soumettre des PR avec tests
+
 ## Licence
 
 Ce projet est sous licence MIT - voir le fichier LICENSE pour plus de détails.
