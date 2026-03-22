@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from typing import Any
 
 import aiohttp
@@ -29,10 +30,25 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
+
+def validate_email(email: str) -> str:
+    """Valide le format de l'email."""
+    if not re.match(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", email):
+        raise vol.Invalid("Format d'email invalide")
+    return email
+
+
+def validate_password(password: str) -> str:
+    """Valide la complexité du mot de passe."""
+    if len(password) < 4:
+        raise vol.Invalid("Le mot de passe doit contenir au moins 4 caractères")
+    return password
+
+
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_EMAIL): str,
-        vol.Required(CONF_PASSWORD): str,
+        vol.Required(CONF_EMAIL): vol.All(str, vol.Length(min=1), validate_email),
+        vol.Required(CONF_PASSWORD): vol.All(str, vol.Length(min=1), validate_password),
         vol.Optional(CONF_TARIF_M3, default=DEFAULT_TARIF_M3): vol.All(vol.Coerce(float), vol.Range(min=0.5, max=30.0)),
     }
 )

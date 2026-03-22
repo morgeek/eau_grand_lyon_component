@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import asyncio
+import json
+import time
 from datetime import datetime, timedelta, timezone
 import logging
 
@@ -82,14 +84,20 @@ class EauGrandLyonCoordinator(DataUpdateCoordinator[dict]):
         "last_update_success_time": datetime | None,
         "last_error": str | None,
         "last_error_type": str | None,
+        # — Mode hors-ligne —
+        "offline_mode": bool,           # True si les données proviennent du cache local
+        "offline_since": datetime | None,  # horodatage du premier échec réseau
     }
     """
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         options = entry.options or {}
-        interval_hours = int(
-            options.get(CONF_UPDATE_INTERVAL_HOURS, DEFAULT_UPDATE_INTERVAL_HOURS)
-        )
+        try:
+            interval_hours = int(
+                options.get(CONF_UPDATE_INTERVAL_HOURS, DEFAULT_UPDATE_INTERVAL_HOURS)
+            )
+        except (ValueError, TypeError):
+            interval_hours = DEFAULT_UPDATE_INTERVAL_HOURS
         super().__init__(
             hass,
             _LOGGER,
@@ -107,8 +115,10 @@ class EauGrandLyonCoordinator(DataUpdateCoordinator[dict]):
             entry.data[CONF_PASSWORD],
         )
         self._prev_nb_alertes: int = 0
-        self._last_request_time: datetime | None = None
-        self._min_request_delay = timedelta(seconds=30)  # Rate limiting: 30s min entre requêtes
+        self._last_request_mono: float | None = None
+        self._min_request_delay_s: float = 30.0  # Rate limiting: 30s min entre requêtes
+        # Dernières données valides connues (utilisées en mode hors-ligne)
+        self._last_good_data: dict | None = None
         # Cache persistant pour l'historique
         self._store = Store(hass, 1, f"{DOMAIN}_{entry.entry_id}_history")
         # Charger les données persistantes au démarrage
@@ -126,23 +136,32 @@ class EauGrandLyonCoordinator(DataUpdateCoordinator[dict]):
                         stored["last_update_success_time"] = datetime.fromisoformat(ts)
                     except ValueError:
                         stored["last_update_success_time"] = None
+                stored["offline_mode"] = False
+                stored["offline_since"] = None
                 self.data = stored
-                _LOGGER.debug("Données persistantes chargées")
+                self._last_good_data = stored
+                _LOGGER.debug("Données persistantes chargées (cache hors-ligne disponible)")
+        except (json.JSONDecodeError, OSError, KeyError) as err:
+            _LOGGER.warning("Erreur chargement données persistantes : %s", err)
         except Exception as err:
-            _LOGGER.warning("Erreur chargement données persistantes: %s", err)
+            _LOGGER.warning("Erreur inattendue chargement données persistantes : %s", err)
 
     async def _save_persistent_data(self) -> None:
-        """Sauvegarde les données persistantes."""
+        """Sauvegarde les données persistantes (uniquement les données valides, jamais offline)."""
         try:
+            # On ne sauvegarde que les dernières données bonnes — jamais l'état offline
+            source = self._last_good_data or self.data or {}
+            data_to_save = {**source, "offline_mode": False, "offline_since": None}
             # Serialize datetime objects to ISO strings for JSON storage
-            data_to_save = {**(self.data or {})}
             ts = data_to_save.get("last_update_success_time")
             if isinstance(ts, datetime):
                 data_to_save["last_update_success_time"] = ts.isoformat()
             await self._store.async_save(data_to_save)
             _LOGGER.debug("Données persistantes sauvegardées")
+        except (json.JSONDecodeError, OSError, TypeError) as err:
+            _LOGGER.warning("Erreur sauvegarde données persistantes : %s", err)
         except Exception as err:
-            _LOGGER.warning("Erreur sauvegarde données persistantes: %s", err)
+            _LOGGER.warning("Erreur inattendue sauvegarde données persistantes : %s", err)
 
     async def async_close(self) -> None:
         """Ferme la session aiohttp dédiée."""
@@ -155,96 +174,87 @@ class EauGrandLyonCoordinator(DataUpdateCoordinator[dict]):
 
     async def _async_update_data(self) -> dict:
         """Récupère toutes les données depuis l'API avec retry intelligent."""
-        # Rate limiting: éviter les requêtes trop fréquentes
-        now = datetime.now(timezone.utc)
-        if self._last_request_time and (now - self._last_request_time) < self._min_request_delay:
-            delay_needed = self._min_request_delay - (now - self._last_request_time)
-            _LOGGER.debug("Rate limiting: attente %.1f s avant requête", delay_needed.total_seconds())
-            await asyncio.sleep(delay_needed.total_seconds())
-        self._last_request_time = datetime.now(timezone.utc)
+        # Rate limiting: éviter les requêtes trop fréquentes (utilise time.monotonic pour éviter
+        # les problèmes de changement d'heure système / NTP)
+        mono_now = time.monotonic()
+        if self._last_request_mono is not None:
+            elapsed = mono_now - self._last_request_mono
+            if elapsed < self._min_request_delay_s:
+                delay_needed = self._min_request_delay_s - elapsed
+                _LOGGER.debug("Rate limiting: attente %.1f s avant requête", delay_needed)
+                await asyncio.sleep(delay_needed)
+        self._last_request_mono = time.monotonic()
 
         last_exc: Exception | None = None
+        last_err_type: str = "UnknownError"
 
         for attempt in range(3):
-            # Auto-recovery: reset erreur après 1h
-            if self.data and self.data.get("last_error") and self.data.get("last_update_success_time"):
-                time_since_success = now - self.data["last_update_success_time"]
-                if time_since_success > timedelta(hours=1):
-                    _LOGGER.info("Auto-recovery: reset erreur après 1h sans succès")
-                    self.data["last_error"] = None
-                    self.data["last_error_type"] = None
-
             try:
                 data = await self._fetch_all_data()
-                data["last_update_success_time"] = datetime.now(timezone.utc)
+                now = datetime.now(timezone.utc)
+                data["last_update_success_time"] = now
                 data["last_error"] = None
                 data["last_error_type"] = None
-                # Sauvegarder en cache persistant
+                data["offline_mode"] = False
+                data["offline_since"] = None
+                # Mémoriser comme dernières données valides
+                self._last_good_data = data
                 await self._save_persistent_data()
                 return data
 
             except WafBlockedError as err:
                 last_exc = err
-                self.data = {
-                    **(self.data or {}),
-                    "last_update_success_time": None,
-                    "last_error": str(err),
-                    "last_error_type": "WafBlockedError",
-                }
+                last_err_type = "WafBlockedError"
                 if attempt < len(_WAF_RETRY_DELAYS):
                     delay = _WAF_RETRY_DELAYS[attempt]
                     _LOGGER.warning(
                         "WAF bloqué (tentative %d/3), retry dans %.0f s — %s",
-                        attempt + 1,
-                        delay,
-                        err,
+                        attempt + 1, delay, err,
                     )
                     await asyncio.sleep(delay)
-                else:
-                    raise UpdateFailed(
-                        f"WAF bloqué après 3 tentatives. "
-                        f"Augmentez l'intervalle dans les options. ({err})"
-                    ) from err
 
             except NetworkError as err:
                 last_exc = err
-                self.data = {
-                    **(self.data or {}),
-                    "last_update_success_time": None,
-                    "last_error": str(err),
-                    "last_error_type": "NetworkError",
-                }
+                last_err_type = "NetworkError"
                 if attempt < len(_NET_RETRY_DELAYS):
                     delay = _NET_RETRY_DELAYS[attempt]
                     _LOGGER.warning(
                         "Erreur réseau (tentative %d/3), retry dans %.0f s — %s",
-                        attempt + 1,
-                        delay,
-                        err,
+                        attempt + 1, delay, err,
                     )
                     await asyncio.sleep(delay)
-                else:
-                    raise UpdateFailed(f"Erreur réseau persistante: {err}") from err
 
             except AuthenticationError as err:
-                self.data = {
-                    **(self.data or {}),
-                    "last_update_success_time": None,
-                    "last_error": str(err),
-                    "last_error_type": "AuthenticationError",
-                }
+                # Pas de fallback cache : les credentials sont invalides, l'utilisateur doit agir
                 raise UpdateFailed(f"Erreur d'authentification: {err}") from err
 
             except Exception as err:  # noqa: BLE001
-                self.data = {
-                    **(self.data or {}),
-                    "last_update_success_time": None,
-                    "last_error": str(err),
-                    "last_error_type": "UnknownError",
-                }
                 raise UpdateFailed(f"Erreur inattendue: {err}") from err
 
-        raise UpdateFailed(f"Échec après 3 tentatives: {last_exc}")
+        # Toutes les tentatives ont échoué — activer le mode hors-ligne si un cache existe
+        cache = self._last_good_data
+        if cache and cache.get("contracts"):
+            offline_since = (
+                self.data.get("offline_since")
+                if self.data and self.data.get("offline_mode")
+                else datetime.now(timezone.utc)
+            )
+            _LOGGER.warning(
+                "API indisponible après 3 tentatives (%s) — mode hors-ligne activé "
+                "(données du %s)",
+                last_err_type,
+                cache.get("last_update_success_time", "inconnu"),
+            )
+            return {
+                **cache,
+                "offline_mode": True,
+                "offline_since": offline_since,
+                "last_error": str(last_exc),
+                "last_error_type": last_err_type,
+            }
+
+        # Aucun cache disponible — on lève l'erreur normalement
+        raise UpdateFailed(f"Échec après 3 tentatives (aucun cache disponible): {last_exc}")
 
     async def _fetch_all_data(self) -> dict:
         """Effectue tous les appels API et construit le dictionnaire de données."""
@@ -256,11 +266,14 @@ class EauGrandLyonCoordinator(DataUpdateCoordinator[dict]):
 
         # Read tarif from options (updatable) first, fall back to initial config data
         opts = self._entry.options or {}
-        tarif_m3 = float(
-            opts[CONF_TARIF_M3]
-            if CONF_TARIF_M3 in opts
-            else self._entry.data.get(CONF_TARIF_M3, DEFAULT_TARIF_M3)
-        )
+        try:
+            tarif_m3 = float(
+                opts[CONF_TARIF_M3]
+                if CONF_TARIF_M3 in opts
+                else self._entry.data.get(CONF_TARIF_M3, DEFAULT_TARIF_M3)
+            )
+        except (ValueError, TypeError):
+            tarif_m3 = DEFAULT_TARIF_M3
 
         contracts_data: dict[str, dict] = {}
 
@@ -411,17 +424,22 @@ class EauGrandLyonCoordinator(DataUpdateCoordinator[dict]):
             stats: list[StatisticData] = []
             cumulative = 0.0
             for entry in consos:
-                mois_num = entry["mois_index"] + 1
-                annee = entry["annee"]
-                dt = datetime(annee, mois_num, 1, 0, 0, 0, tzinfo=timezone.utc)
-                cumulative += entry["consommation_m3"]
-                stats.append(
-                    StatisticData(
-                        start=dt,
-                        sum=round(cumulative, 3),
-                        state=round(entry["consommation_m3"], 3),
+                try:
+                    mois_num = entry["mois_index"] + 1
+                    annee = entry["annee"]
+                    conso = entry["consommation_m3"]
+                    dt = datetime(annee, mois_num, 1, 0, 0, 0, tzinfo=timezone.utc)
+                    cumulative += conso
+                    stats.append(
+                        StatisticData(
+                            start=dt,
+                            sum=round(cumulative, 3),
+                            state=round(conso, 3),
+                        )
                     )
-                )
+                except (KeyError, ValueError, TypeError) as err:
+                    _LOGGER.debug("Entrée statistique ignorée (format inattendu) : %s — %s", entry, err)
+                    continue
 
             try:
                 async_add_external_statistics(self.hass, metadata, stats)
@@ -429,8 +447,10 @@ class EauGrandLyonCoordinator(DataUpdateCoordinator[dict]):
                     "Statistiques injectées : contrat %s, %d mois, %.1f m³ cumulés",
                     ref, len(stats), cumulative,
                 )
+            except (ValueError, TypeError, KeyError) as err:
+                _LOGGER.warning("Erreur données statistiques pour %s : %s", ref, err)
             except Exception as err:  # noqa: BLE001
-                _LOGGER.warning("Injection statistiques échouée pour %s : %s", ref, err)
+                _LOGGER.warning("Erreur inattendue injection statistiques pour %s : %s", ref, err)
 
     # ------------------------------------------------------------------
     # Notifications alertes

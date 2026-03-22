@@ -5,7 +5,9 @@
       "Bash(ls custom_components/eau_grand_lyon/*.py)",
       "Bash(md5 /Users/keegrom/Downloads/eau_grand_lyon_component/icon.png /Users/keegrom/Downloads/eau_grand_lyon_component/logo.png /Users/keegrom/Downloads/eau_grand_lyon_component/custom_components/eau_grand_lyon/icon.png /Users/keegrom/Downloads/eau_grand_lyon_component/custom_components/eau_grand_lyon/logo.png /Users/keegrom/Downloads/eau_grand_lyon_component/custom_components/eau_grand_lyon/HA-Eau-Grand-Lyon.png)",
       "Bash(find /Users/keegrom/Downloads/eau_grand_lyon_component -name \".DS_Store\" -delete)",
-      "Bash(find /Users/keegrom/Downloads/eau_grand_lyon_component -name \"__pycache__\" -type d -exec rm -rf {} +)"
+      "Bash(find /Users/keegrom/Downloads/eau_grand_lyon_component -name \"__pycache__\" -type d -exec rm -rf {} +)",
+      "Bash(xargs grep:*)",
+      "Bash(grep -n \"BLE001\\\\|noqa\" /Users/keegrom/Downloads/eau_grand_lyon_component/custom_components/eau_grand_lyon/*.py)"
     ]
   }
 }

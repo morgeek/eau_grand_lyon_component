@@ -4,6 +4,7 @@ from __future__ import annotations
 import asyncio
 import base64
 import hashlib
+import json
 import logging
 from typing import Any
 from urllib.parse import parse_qs, urlparse
@@ -214,7 +215,7 @@ class EauGrandLyonApi:
                     raise AuthenticationError(
                         f"Échange de token échoué ({resp.status}): {body[:200]}"
                     )
-                result: dict = await resp.json(content_type=None)
+                result: dict = json.loads(await resp.text())
         except (WafBlockedError, AuthenticationError):
             raise
         except aiohttp.ClientError as err:
@@ -253,11 +254,11 @@ class EauGrandLyonApi:
                                 f"WAF 403 sur GET {path} (après ré-auth)."
                             )
                         resp2.raise_for_status()
-                        return await resp2.json(content_type=None)
+                        return json.loads(await resp2.text())
                 if resp.status == 403:
                     raise WafBlockedError(f"WAF 403 sur GET {path}.")
                 resp.raise_for_status()
-                return await resp.json(content_type=None)
+                return json.loads(await resp.text())
         except (WafBlockedError, AuthenticationError):
             raise
         except aiohttp.ClientResponseError as err:
@@ -283,11 +284,11 @@ class EauGrandLyonApi:
                                 f"WAF 403 sur POST {path} (après ré-auth)."
                             )
                         resp2.raise_for_status()
-                        return await resp2.json(content_type=None)
+                        return json.loads(await resp2.text())
                 if resp.status == 403:
                     raise WafBlockedError(f"WAF 403 sur POST {path}.")
                 resp.raise_for_status()
-                return await resp.json(content_type=None)
+                return json.loads(await resp.text())
         except (WafBlockedError, AuthenticationError):
             raise
         except aiohttp.ClientResponseError as err:
@@ -305,6 +306,9 @@ class EauGrandLyonApi:
             f"/application/rest/interfaces/ael/contrats/rechercher"
             f"?expand={_CONTRACTS_EXPAND}&select={_CONTRACTS_SELECT}"
         )
+        if not isinstance(data, (dict, list)):
+            _LOGGER.warning("Réponse inattendue pour get_contracts (type=%s)", type(data).__name__)
+            return []
         contracts = data.get("content", data) if isinstance(data, dict) else data
         return list(contracts) if contracts else []
 
@@ -315,9 +319,12 @@ class EauGrandLyonApi:
             f"/consommationsMensuelles"
         )
         entries: list[dict] = []
+        if not isinstance(data, dict):
+            _LOGGER.warning("Réponse inattendue pour consommationsMensuelles (type=%s)", type(data).__name__)
+            return entries
         for poste in data.get("postes", []):
             entries.extend(poste.get("data", []))
-        entries.sort(key=lambda x: (int(x["annee"]), int(x["mois"])))
+        entries.sort(key=lambda x: (int(x.get("annee", 0)), int(x.get("mois", 0))))
         return entries
 
     async def get_daily_consumptions(
@@ -377,10 +384,16 @@ class EauGrandLyonApi:
                         contract_id, err,
                     )
                 continue
-            except Exception:  # noqa: BLE001
+            except (aiohttp.ClientError, json.JSONDecodeError, KeyError, TypeError) as err:
                 _LOGGER.debug(
-                    "Données journalières non disponibles pour contrat %s",
-                    contract_id,
+                    "Erreur traitement données journalières pour contrat %s : %s",
+                    contract_id, err,
+                )
+                continue
+            except Exception as err:  # noqa: BLE001
+                _LOGGER.warning(
+                    "Erreur inattendue données journalières pour contrat %s : %s",
+                    contract_id, err,
                 )
                 continue
 
@@ -394,8 +407,11 @@ class EauGrandLyonApi:
                 "?expand=infosAlarme,modeleAction,objetMaitre"
             )
             return data if isinstance(data, list) else []
-        except Exception:  # noqa: BLE001
-            _LOGGER.debug("Impossible de récupérer les alertes, retourne []")
+        except (aiohttp.ClientError, json.JSONDecodeError, KeyError, TypeError) as err:
+            _LOGGER.debug("Erreur récupération alertes : %s", err)
+            return []
+        except Exception as err:  # noqa: BLE001
+            _LOGGER.warning("Erreur inattendue récupération alertes : %s", err)
             return []
 
     # ------------------------------------------------------------------
@@ -407,18 +423,22 @@ class EauGrandLyonApi:
         """Enrichit les entrées mensuelles brutes avec labels lisibles."""
         result = []
         for e in raw_entries:
-            mois_raw = int(e["mois"])
-            if not (1 <= mois_raw <= 12):
-                continue  # Skip invalid month values from API (e.g. mois=0)
-            mois_idx = mois_raw - 1  # API returns 1-12, convert to 0-11 for MONTHS_FR
-            annee = int(e["annee"])
-            result.append({
-                "mois_index": mois_idx,
-                "mois": MONTHS_FR[mois_idx],
-                "annee": annee,
-                "label": f"{MONTHS_FR[mois_idx]} {annee}",
-                "consommation_m3": float(e["consommation"]),
-            })
+            try:
+                mois_raw = int(e["mois"])
+                if not (1 <= mois_raw <= 12):
+                    continue  # Skip invalid month values from API (e.g. mois=0)
+                mois_idx = mois_raw - 1  # API returns 1-12, convert to 0-11 for MONTHS_FR
+                annee = int(e["annee"])
+                result.append({
+                    "mois_index": mois_idx,
+                    "mois": MONTHS_FR[mois_idx],
+                    "annee": annee,
+                    "label": f"{MONTHS_FR[mois_idx]} {annee}",
+                    "consommation_m3": float(e.get("consommation", 0)),
+                })
+            except (KeyError, ValueError, TypeError):
+                _LOGGER.debug("Entrée mensuelle ignorée (format inattendu) : %s", e)
+                continue
         return result
 
     @staticmethod
@@ -426,12 +446,16 @@ class EauGrandLyonApi:
         """Enrichit les entrées journalières brutes (si disponibles)."""
         result = []
         for e in raw_entries:
-            date_str = e.get("date", "")
-            conso = e.get("consommation", 0)
-            result.append({
-                "date": date_str,
-                "consommation_m3": float(conso),
-            })
+            try:
+                date_str = e.get("date", "")
+                conso = e.get("consommation", 0)
+                result.append({
+                    "date": date_str,
+                    "consommation_m3": float(conso),
+                })
+            except (ValueError, TypeError):
+                _LOGGER.debug("Entrée journalière ignorée (format inattendu) : %s", e)
+                continue
         return result
 
     @staticmethod
@@ -448,7 +472,10 @@ class EauGrandLyonApi:
         condition = raw.get("conditionPaiement") or {}
         compte = condition.get("compteClient") or {}
         solde_obj = compte.get("solde") or {}
-        solde_eur = float(solde_obj.get("value", 0))
+        try:
+            solde_eur = float(solde_obj.get("value", 0))
+        except (ValueError, TypeError):
+            solde_eur = 0.0
 
         mensualise: bool = bool(condition.get("mensualise", False))
         mode_paiement = (condition.get("modePaiement") or {}).get("libelle", "")

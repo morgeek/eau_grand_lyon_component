@@ -92,6 +92,10 @@ class _EauGrandLyonBase(CoordinatorEntity[EauGrandLyonCoordinator], SensorEntity
         return self.coordinator.data.get("contracts", {}).get(self._contract_ref, {})
 
     @property
+    def _current_year_str(self) -> str:
+        return f"{datetime.now().year}-01-01"
+
+    @property
     def device_info(self) -> DeviceInfo:
         calibre = self._contract.get("calibre_compteur", "")
         usage = self._contract.get("usage", "")
@@ -422,7 +426,7 @@ class EauGrandLyonCoutCumuleSensor(_EauGrandLyonBase):
         return {
             "consommation_cumulee_m3": c.get("consommation_cumulee_annee"),
             "tarif_appliqué_eur_m3": c.get("tarif_m3"),
-            "last_reset": f"{datetime.now().year}-01-01",
+            "last_reset": self._current_year_str,
             "note": "Coût cumulé depuis le 1er janvier",
         }
 
@@ -591,7 +595,7 @@ class EauGrandLyonEnergyWaterSensor(_EauGrandLyonBase):
         return {
             "device_class": "water",
             "state_class": "total_increasing",
-            "last_reset": c.get("date_reset_conso", f"{datetime.now().year}-01-01"),
+            "last_reset": c.get("date_reset_conso", self._current_year_str),
             "note": "Sensor optimisé pour le tableau de bord Énergie HA",
         }
 
@@ -625,29 +629,24 @@ class EauGrandLyonEnergyCostSensor(_EauGrandLyonBase):
         return {
             "device_class": "monetary",
             "state_class": "total_increasing",
-            "last_reset": c.get("date_reset_cout", f"{datetime.now().year}-01-01"),
+            "last_reset": c.get("date_reset_cout", self._current_year_str),
             "tarif_eur_m3": c.get("tarif_m3"),
             "note": "Sensor optimisé pour le tableau de bord Énergie HA",
         }
 
 
 # ══════════════════════════════════════════════════════════════════════
-# Alertes actives (global)
+# Classe de base pour sensors globaux (non liés à un contrat)
 # ══════════════════════════════════════════════════════════════════════
 
-class EauGrandLyonAlertesSensor(CoordinatorEntity[EauGrandLyonCoordinator], SensorEntity):
-    """Nombre d'alertes actives sur l'ensemble des contrats."""
+class _EauGrandLyonGlobalBase(CoordinatorEntity[EauGrandLyonCoordinator], SensorEntity):
+    """Base commune pour les sensors globaux (alertes, dernière MAJ, santé API)."""
 
-    _attr_state_class = SensorStateClass.MEASUREMENT
-    _attr_icon = "mdi:bell-alert"
     _attr_has_entity_name = True
-    _attr_name = "Alertes actives"
-    _attr_native_unit_of_measurement = "alertes"
 
-    def __init__(self, coordinator, entry):
+    def __init__(self, coordinator: EauGrandLyonCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator)
         self._entry = entry
-        self._attr_unique_id = f"{entry.entry_id}_alertes"
 
     @property
     def device_info(self) -> DeviceInfo:
@@ -662,6 +661,23 @@ class EauGrandLyonAlertesSensor(CoordinatorEntity[EauGrandLyonCoordinator], Sens
             name="Eau du Grand Lyon",
             manufacturer="Morgeek",
         )
+
+
+# ══════════════════════════════════════════════════════════════════════
+# Alertes actives (global)
+# ══════════════════════════════════════════════════════════════════════
+
+class EauGrandLyonAlertesSensor(_EauGrandLyonGlobalBase):
+    """Nombre d'alertes actives sur l'ensemble des contrats."""
+
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_icon = "mdi:bell-alert"
+    _attr_name = "Alertes actives"
+    _attr_native_unit_of_measurement = "alertes"
+
+    def __init__(self, coordinator, entry):
+        super().__init__(coordinator, entry)
+        self._attr_unique_id = f"{entry.entry_id}_alertes"
 
     @property
     def native_value(self) -> int:
@@ -674,34 +690,16 @@ class EauGrandLyonAlertesSensor(CoordinatorEntity[EauGrandLyonCoordinator], Sens
 # Dernière mise à jour réussie (global)
 # ══════════════════════════════════════════════════════════════════════
 
-class EauGrandLyonLastUpdateSensor(
-    CoordinatorEntity[EauGrandLyonCoordinator], SensorEntity
-):
+class EauGrandLyonLastUpdateSensor(_EauGrandLyonGlobalBase):
     """Horodatage de la dernière synchronisation réussie."""
 
     _attr_device_class = SensorDeviceClass.TIMESTAMP
     _attr_icon = "mdi:clock-check-outline"
-    _attr_has_entity_name = True
     _attr_name = "Dernière mise à jour"
 
     def __init__(self, coordinator, entry):
-        super().__init__(coordinator)
-        self._entry = entry
+        super().__init__(coordinator, entry)
         self._attr_unique_id = f"{entry.entry_id}_last_update"
-
-    @property
-    def device_info(self) -> DeviceInfo:
-        contracts = (self.coordinator.data or {}).get("contracts", {})
-        first_ref = next(iter(contracts), None)
-        if first_ref:
-            return DeviceInfo(
-                identifiers={(DOMAIN, f"{self._entry.entry_id}_{first_ref}")},
-            )
-        return DeviceInfo(
-            identifiers={(DOMAIN, self._entry.entry_id)},
-            name="Eau du Grand Lyon",
-            manufacturer="Morgeek",
-        )
 
     @property
     def native_value(self) -> datetime | None:
@@ -718,24 +716,22 @@ class EauGrandLyonLastUpdateSensor(
         }
 
 
-class EauGrandLyonHealthSensor(CoordinatorEntity[EauGrandLyonCoordinator], SensorEntity):
+class EauGrandLyonHealthSensor(_EauGrandLyonGlobalBase):
     """Statut global de l'intégration (API/connexion)."""
 
-    _attr_has_entity_name = True
     _attr_icon = "mdi:heart-pulse"
     _attr_name = "Statut API"
 
     def __init__(self, coordinator: EauGrandLyonCoordinator, entry: ConfigEntry) -> None:
-        super().__init__(coordinator)
-        self._entry = entry
+        super().__init__(coordinator, entry)
         self._attr_unique_id = f"{entry.entry_id}_api_status"
 
     @property
     def native_value(self) -> str:
         data = self.coordinator.data or {}
-        last_error = data.get("last_error")
-
-        if last_error:
+        if data.get("offline_mode"):
+            return "HORS-LIGNE"
+        if data.get("last_error"):
             return "KO"
         if data.get("last_update_success_time"):
             return "OK"
@@ -744,8 +740,13 @@ class EauGrandLyonHealthSensor(CoordinatorEntity[EauGrandLyonCoordinator], Senso
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         data = self.coordinator.data or {}
-        return {
+        attrs: dict[str, Any] = {
             "last_update_success_time": data.get("last_update_success_time"),
             "last_error": data.get("last_error"),
             "last_error_type": data.get("last_error_type"),
+            "offline_mode": data.get("offline_mode", False),
         }
+        if data.get("offline_mode"):
+            attrs["offline_since"] = data.get("offline_since")
+            attrs["note"] = "Données issues du cache local — API indisponible"
+        return attrs

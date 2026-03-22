@@ -6,6 +6,10 @@ Ceci est une intégration personnalisée NON OFFICIELLE pour [Home Assistant](ht
 
 ![alt text](https://github.com/morgeek/HA-Plugin-pour-Eau-du-Grand-Lyon/blob/main/custom_components/eau_grand_lyon/HA-Eau-Grand-Lyon.png)
 
+## Historique des versions
+
+Voir le [CHANGELOG.md](CHANGELOG.md) pour l'historique complet des changements.
+
 ## Fonctionnalités
 Cette intégration vous permet de surveiller votre utilisation de l'eau et les informations de compte du service des eaux de Grand Lyon. Elle fournit les capteurs suivants :
 
@@ -33,6 +37,13 @@ Cette intégration vous permet de surveiller votre utilisation de l'eau et les i
 
 Inclut également un bouton pour déclencher manuellement une mise à jour des données.
 
+### Mode hors-ligne
+Si l'API Eau du Grand Lyon est indisponible (coupure réseau, maintenance, blocage WAF), l'intégration bascule automatiquement en **mode hors-ligne** :
+- Les sensors restent disponibles et affichent les dernières données connues
+- Le sensor **Statut API** passe à `HORS-LIGNE` avec l'horodatage du début de la panne
+- Le cache est persistant sur disque — il survit à un redémarrage de Home Assistant
+- Dès que l'API répond à nouveau, les données sont rafraîchies et le mode hors-ligne se désactive automatiquement
+
 ### Dashboard Lovelace
 - Template complet : `lovelace/dashboard.yaml`
 - Template avec notifications : `lovelace/dashboard_notifications.yaml`*(temporairement désactivé)*
@@ -52,16 +63,8 @@ Pour activer l'intégration Energy :
 3. Les statistiques se généreront automatiquement
 
 ### Notifications Avancées
-⚠️ **Note** : Les fonctionnalités de notifications sont temporairement désactivées en raison d'un problème d'import. Elles seront réactivées dans une future mise à jour.
 
-- **Pushover/Telegram intégrés** : Notifications push personnalisées avec priorité *(temporairement désactivé)*
-- **Alertes vocales Google Home/Alexa** : Annonces vocales pour les situations critiques *(temporairement désactivé)*
-- **Alertes intelligentes automatiques** : Détection automatique de fuites, consommation élevée, etc. *(temporairement désactivé)*
-
-Pour activer les notifications :
-1. Configurez Pushover/Telegram dans `configuration.yaml` (voir `lovelace/notification_config.yaml`)
-2. Importez les automatisations depuis `lovelace/smart_notifications.yaml`
-3. Configurez les devices TTS pour les alertes vocales
+> ⚠️ **Non disponible dans cette version** — les notifications Pushover/Telegram, alertes vocales et automatisations intelligentes ne sont pas encore implémentées. Cette fonctionnalité est prévue pour une version future.
 
 ## Prérequis
 - Home Assistant (version 2021.3.0 ou ultérieure recommandée)
@@ -74,7 +77,7 @@ Pour activer les notifications :
 2. Extrayez le contenu du dossier `custom_components/eau_grand_lyon/` dans le répertoire `custom_components/` de votre Home Assistant.
 3. Redémarrez Home Assistant.
 
-### Option 2 : HACS (normalement ça marche)
+### Option 2 : HACS
 1. Assurez-vous d'avoir [HACS](https://hacs.xyz/) installé dans votre instance Home Assistant.
 2. Allez dans "Intégrations" et recherchez "Eau du Grand Lyon".
 3. Cliquez sur "Installer" et redémarrez Home Assistant.
@@ -93,12 +96,9 @@ L'intégration récupérera automatiquement les données toutes les 6 heures (ca
 ## Utilisation
 Une fois configuré, les capteurs apparaîtront dans votre tableau de bord Home Assistant. Vous pouvez les utiliser dans des automatisations, des tableaux de bord, ou de toute autre manière que vous utilisez les capteurs dans Home Assistant.
 
-### Notifications Intelligentes *(temporairement désactivé)*
-L'intégration inclut un système complet de notifications intelligentes pour :
-- Configuration des services Pushover/Telegram
-- Paramétrage des alertes vocales Google Home/Alexa
-- Automatisations prédéfinies pour la détection de fuites
-- Personnalisation des seuils d'alerte
+### Notifications Intelligentes
+
+> ⚠️ **Non disponible dans cette version** — prévu pour une version future.
 
 ## Dépannage
 - **Problèmes d'authentification** : Assurez-vous que votre email et mot de passe sont corrects. L'intégration utilise l'API officielle d'Eau du Grand Lyon.
