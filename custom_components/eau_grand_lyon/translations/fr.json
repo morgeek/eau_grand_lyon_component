@@ -21,5 +21,16 @@
     "abort": {
       "already_configured": "Ce compte est déjà configuré."
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Options Eau du Grand Lyon",
+        "description": "Configurez l'intervalle de mise à jour. Tarif par défaut : {tarif_default} €/m³",
+        "data": {
+          "update_interval_hours": "Fréquence de mise à jour"
+        }
+      }
+    }
   }
 }
