@@ -511,7 +511,7 @@ class EauGrandLyonAlertesSensor(CoordinatorEntity[EauGrandLyonCoordinator], Sens
         return DeviceInfo(
             identifiers={(DOMAIN, self._entry.entry_id)},
             name="Eau du Grand Lyon",
-            manufacturer="Morgeek & Claude",
+            manufacturer="Morgeek",
         )
 
     @property
@@ -551,7 +551,7 @@ class EauGrandLyonLastUpdateSensor(
         return DeviceInfo(
             identifiers={(DOMAIN, self._entry.entry_id)},
             name="Eau du Grand Lyon",
-            manufacturer="Morgeek & Claude",
+            manufacturer="Morgeek",
         )
 
     @property

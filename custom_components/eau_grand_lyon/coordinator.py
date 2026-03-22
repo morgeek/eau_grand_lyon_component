@@ -121,15 +121,27 @@ class EauGrandLyonCoordinator(DataUpdateCoordinator[dict]):
 
         for attempt in range(3):
             try:
-                return await self._fetch_all_data()
+                data = await self._fetch_all_data()
+                data["last_update_success_time"] = datetime.now(timezone.utc)
+                data["last_error"] = None
+                data["last_error_type"] = None
+                return data
 
             except WafBlockedError as err:
                 last_exc = err
+                self.data = {
+                    **(self.data or {}),
+                    "last_update_success_time": None,
+                    "last_error": str(err),
+                    "last_error_type": "WafBlockedError",
+                }
                 if attempt < len(_WAF_RETRY_DELAYS):
                     delay = _WAF_RETRY_DELAYS[attempt]
                     _LOGGER.warning(
                         "WAF bloqué (tentative %d/3), retry dans %.0f s — %s",
-                        attempt + 1, delay, err,
+                        attempt + 1,
+                        delay,
+                        err,
                     )
                     await asyncio.sleep(delay)
                 else:
@@ -140,20 +152,40 @@ class EauGrandLyonCoordinator(DataUpdateCoordinator[dict]):
 
             except NetworkError as err:
                 last_exc = err
+                self.data = {
+                    **(self.data or {}),
+                    "last_update_success_time": None,
+                    "last_error": str(err),
+                    "last_error_type": "NetworkError",
+                }
                 if attempt < len(_NET_RETRY_DELAYS):
                     delay = _NET_RETRY_DELAYS[attempt]
                     _LOGGER.warning(
                         "Erreur réseau (tentative %d/3), retry dans %.0f s — %s",
-                        attempt + 1, delay, err,
+                        attempt + 1,
+                        delay,
+                        err,
                     )
                     await asyncio.sleep(delay)
                 else:
                     raise UpdateFailed(f"Erreur réseau persistante: {err}") from err
 
             except AuthenticationError as err:
+                self.data = {
+                    **(self.data or {}),
+                    "last_update_success_time": None,
+                    "last_error": str(err),
+                    "last_error_type": "AuthenticationError",
+                }
                 raise UpdateFailed(f"Erreur d'authentification: {err}") from err
 
             except Exception as err:  # noqa: BLE001
+                self.data = {
+                    **(self.data or {}),
+                    "last_update_success_time": None,
+                    "last_error": str(err),
+                    "last_error_type": "UnknownError",
+                }
                 raise UpdateFailed(f"Erreur inattendue: {err}") from err
 
         raise UpdateFailed(f"Échec après 3 tentatives: {last_exc}")
