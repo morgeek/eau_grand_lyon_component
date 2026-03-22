@@ -19,6 +19,8 @@ Cette intégration vous permet de surveiller votre utilisation de l'eau et les i
 ### Capteurs de coût
 - **Coût Mensuel** : Coût estimé pour le mois en cours (configurable)
 - **Coût Annuel** : Coût estimé pour les 12 derniers mois (configurable)
+- **Économie vs N-1** : Économie réalisée par rapport à l'année précédente (€)
+- **Alerte Fuite Possible** : Détection de surconsommation anormale (binaire)
 - Tarif configurable directement depuis l'interface Home Assistant (défaut : 5,20 €/m³, tarif indicatif Grand Lyon 2024 - à adapter selon votre facture)
 
 ### Détection des mois manquants

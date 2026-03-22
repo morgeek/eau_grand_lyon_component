@@ -7,9 +7,7 @@ import logging
 
 import aiohttp
 
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.helpers.storage import Store
 
 from .api import (
     AuthenticationError,
@@ -105,6 +103,30 @@ class EauGrandLyonCoordinator(DataUpdateCoordinator[dict]):
             entry.data[CONF_PASSWORD],
         )
         self._prev_nb_alertes: int = 0
+        self._last_request_time: datetime | None = None
+        self._min_request_delay = timedelta(seconds=30)  # Rate limiting: 30s min entre requêtes
+        # Cache persistant pour l'historique
+        self._store = Store(hass, 1, f"{DOMAIN}_{entry.entry_id}_history")
+        # Charger les données persistantes
+        self._load_persistent_data()
+
+    def _load_persistent_data(self) -> None:
+        """Charge les données persistantes depuis le store."""
+        try:
+            stored = self._store.async_load_sync()
+            if stored:
+                self.data = stored
+                _LOGGER.debug("Données persistantes chargées")
+        except Exception as err:
+            _LOGGER.warning("Erreur chargement données persistantes: %s", err)
+
+    async def _save_persistent_data(self) -> None:
+        """Sauvegarde les données persistantes."""
+        try:
+            await self._store.async_save(self.data)
+            _LOGGER.debug("Données persistantes sauvegardées")
+        except Exception as err:
+            _LOGGER.warning("Erreur sauvegarde données persistantes: %s", err)
 
     async def async_close(self) -> None:
         """Ferme la session aiohttp dédiée."""
@@ -117,14 +139,32 @@ class EauGrandLyonCoordinator(DataUpdateCoordinator[dict]):
 
     async def _async_update_data(self) -> dict:
         """Récupère toutes les données depuis l'API avec retry intelligent."""
+        # Rate limiting: éviter les requêtes trop fréquentes
+        now = datetime.now(timezone.utc)
+        if self._last_request_time and (now - self._last_request_time) < self._min_request_delay:
+            delay_needed = self._min_request_delay - (now - self._last_request_time)
+            _LOGGER.debug("Rate limiting: attente %.1f s avant requête", delay_needed.total_seconds())
+            await asyncio.sleep(delay_needed.total_seconds())
+        self._last_request_time = datetime.now(timezone.utc)
+
         last_exc: Exception | None = None
 
         for attempt in range(3):
+            # Auto-recovery: reset erreur après 1h
+            if self.data and self.data.get("last_error") and self.data.get("last_update_success_time"):
+                time_since_success = now - self.data["last_update_success_time"]
+                if time_since_success > timedelta(hours=1):
+                    _LOGGER.info("Auto-recovery: reset erreur après 1h sans succès")
+                    self.data["last_error"] = None
+                    self.data["last_error_type"] = None
+
             try:
                 data = await self._fetch_all_data()
                 data["last_update_success_time"] = datetime.now(timezone.utc)
                 data["last_error"] = None
                 data["last_error_type"] = None
+                # Sauvegarder en cache persistant
+                await self._save_persistent_data()
                 return data
 
             except WafBlockedError as err:
@@ -201,7 +241,7 @@ class EauGrandLyonCoordinator(DataUpdateCoordinator[dict]):
         nb_alertes = len(alertes)
 
         options = self._entry.options or {}
-        tarif_m3 = float(options.get(CONF_TARIF_M3, DEFAULT_TARIF_M3))
+        tarif_m3 = float(self._entry.data.get(CONF_TARIF_M3, DEFAULT_TARIF_M3))
 
         contracts_data: dict[str, dict] = {}
 

@@ -6,7 +6,8 @@
         "description": "Entrez vos identifiants du site {site_url}",
         "data": {
           "email": "Email",
-          "password": "Mot de passe"
+          "password": "Mot de passe",
+          "tarif_m3": "Tarif au m³ (€)"
         }
       }
     },

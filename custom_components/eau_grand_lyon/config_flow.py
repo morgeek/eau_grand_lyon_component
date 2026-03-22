@@ -33,6 +33,7 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_EMAIL): str,
         vol.Required(CONF_PASSWORD): str,
+        vol.Optional(CONF_TARIF_M3, default=DEFAULT_TARIF_M3): vol.All(vol.Coerce(float), vol.Range(min=0.5, max=30.0)),
     }
 )
 
@@ -94,6 +95,7 @@ class EauGrandLyonConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         data={
                             CONF_EMAIL: email,
                             CONF_PASSWORD: password,
+                            CONF_TARIF_M3: user_input[CONF_TARIF_M3],
                         },
                     )
 
@@ -119,13 +121,10 @@ class EauGrandLyonOptionsFlowHandler(config_entries.OptionsFlow):
     ) -> config_entries.FlowResult:
         """Étape unique : modification des options."""
         if user_input is not None:
-            # Convertir en float pour le tarif (vol.Coerce peut retourner un int)
-            user_input[CONF_TARIF_M3] = float(user_input[CONF_TARIF_M3])
             return self.async_create_entry(title="", data=user_input)
 
         opts = self._config_entry.options or {}
         current_interval = int(opts.get(CONF_UPDATE_INTERVAL_HOURS, DEFAULT_UPDATE_INTERVAL_HOURS))
-        current_tarif = float(opts.get(CONF_TARIF_M3, DEFAULT_TARIF_M3))
 
         options_schema = vol.Schema(
             {
@@ -133,10 +132,6 @@ class EauGrandLyonOptionsFlowHandler(config_entries.OptionsFlow):
                     CONF_UPDATE_INTERVAL_HOURS,
                     default=current_interval,
                 ): vol.In(_INTERVAL_OPTIONS),
-                vol.Optional(
-                    CONF_TARIF_M3,
-                    default=current_tarif,
-                ): vol.All(vol.Coerce(float), vol.Range(min=0.5, max=30.0)),
             }
         )
 
