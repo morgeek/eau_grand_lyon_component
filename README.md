@@ -19,6 +19,7 @@ Cette intégration vous permet de surveiller votre utilisation de l'eau et les i
 - **Solde du Compte** : Solde actuel de votre compte eau (en €)
 - **Statut du Contrat** : Statut de votre contrat eau
 - **Date d'Échéance** : Prochaine date d'échéance de paiement
+- **Dernière facture** : Montant de la dernière facture émise (expérimental)
 
 ### Capteurs de coût
 - **Coût Mensuel** : Coût estimé pour le mois en cours (configurable)
@@ -32,8 +33,9 @@ Cette intégration vous permet de surveiller votre utilisation de l'eau et les i
 
 ### Consommations journalières
 - L'intégration tente automatiquement 2 endpoints API possibles si un jour cela est disponible...
-- Si compteur est compatible Téléo/TIC, les capteurs "7 jours" et "30 jours" deviennent disponibles
-- Sinon, ils restent silencieux (aucune erreur)
+- Si compteur est compatible Téléo/TIC, les capteurs "7 jours" et "30 jours" deviennent disponibles.
+- **En mode expérimental**, des données supplémentaires comme le **Volume de fuite estimé**, le **Débit minimal** et l'**Index réel** sont récupérées pour les compteurs récents.
+- Sinon, ils restent silencieux (aucune erreur).
 
 Inclut également un bouton pour déclencher manuellement une mise à jour des données.
 
@@ -43,6 +45,13 @@ Si l'API Eau du Grand Lyon est indisponible (coupure réseau, maintenance, bloca
 - Le sensor **Statut API** passe à `HORS-LIGNE` avec l'horodatage du début de la panne
 - Le cache est persistant sur disque — il survit à un redémarrage de Home Assistant
 - Dès que l'API répond à nouveau, les données sont rafraîchies et le mode hors-ligne se désactive automatiquement
+
+### Mode Expérimental (API 2026)
+Cette version inclut un nouveau mode basé sur les endpoints découverts dans le bundle Angular 2026 du site officiel :
+- **Nouvelles Données** : Accès aux factures détaillées, à la courbe de charge (données sub-journalières pour Téléo) et aux volumes de fuite nocturnes.
+- **Modernisation** : Utilise les dernières routes API sans le préfixe `/application/`, offrant potentiellement une meilleure stabilité future.
+- **Sécurité & Fallback** : Si un nouvel endpoint échoue ou retourne une erreur 404, l'intégration bascule automatiquement sur l'API stable (legacy). Rien ne casse.
+- **Activation** : Désactivé par défaut. Peut être activé dans les options de l'intégration (**Configurer**).
 
 ### Dashboard Lovelace
 - Template complet : `lovelace/dashboard.yaml`
@@ -88,6 +97,8 @@ Pour activer l'intégration Energy :
 2. Cliquez sur **Ajouter une intégration** et recherchez "Eau du Grand Lyon".
 3. Saisissez votre email et mot de passe du compte Eau du Grand Lyon.
 4. Terminez la configuration.
+
+Une fois installée, vous pouvez modifier les options (tarif au m³, intervalle de mise à jour, mode expérimental) en retournant dans **Appareils et services** > **Eau du Grand Lyon** > **Configurer**.
 
 L'intégration récupérera automatiquement les données toutes les 6 heures (car les données eau sont généralement mensuelles). Et on ne va pas tabasser leur serveur inutilement.
 
