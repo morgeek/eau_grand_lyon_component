@@ -85,7 +85,7 @@ async def async_setup_entry(
     # Sensors régionaux
     entities.append(EauGrandLyonDroughtSensor(coordinator, entry))
 
-    async_add_entities(entities, update_before_add=True)
+    async_add_entities(entities, update_before_add=False)
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -189,7 +189,7 @@ class EauGrandLyonConsommationSensor(_EauGrandLyonBase):
     """Consommation du mois courant ou précédent (m³)."""
 
     _attr_device_class = SensorDeviceClass.WATER
-    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_state_class = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "m³"
     _attr_icon = "mdi:water"
     _attr_suggested_display_precision = 1
@@ -269,7 +269,7 @@ class EauGrandLyonConsommationAnnuelleSensor(_EauGrandLyonBase):
     """Consommation totale des 12 derniers mois (m³)."""
 
     _attr_device_class = SensorDeviceClass.WATER
-    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_state_class = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "m³"
     _attr_icon = "mdi:water-outline"
     _attr_name = "Consommation annuelle (12 mois)"
@@ -386,7 +386,7 @@ class EauGrandLyonCoutMoisSensor(_EauGrandLyonBase):
     """Coût estimé du mois courant (€)."""
 
     _attr_device_class = SensorDeviceClass.MONETARY
-    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_state_class = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "EUR"
     _attr_icon = "mdi:water-percent"
     _attr_name = "Coût estimé mois courant"
@@ -415,7 +415,7 @@ class EauGrandLyonCoutAnnuelSensor(_EauGrandLyonBase):
     """Coût estimé des 12 derniers mois (€)."""
 
     _attr_device_class = SensorDeviceClass.MONETARY
-    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_state_class = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "EUR"
     _attr_icon = "mdi:currency-eur"
     _attr_name = "Coût estimé annuel (12 mois)"
@@ -481,7 +481,7 @@ class EauGrandLyonEconomieSensor(_EauGrandLyonBase):
     """Économie réalisée vs année N-1 (€)."""
 
     _attr_device_class = SensorDeviceClass.MONETARY
-    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_state_class = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "EUR"
     _attr_icon = "mdi:trending-down"
     _attr_name = "Économie vs N-1"
@@ -519,7 +519,7 @@ class EauGrandLyonSoldeSensor(_EauGrandLyonBase):
     """Solde du compte client (€)."""
 
     _attr_device_class = SensorDeviceClass.MONETARY
-    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_state_class = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "EUR"
     _attr_icon = "mdi:currency-eur"
     _attr_name = "Solde compte"
@@ -727,7 +727,7 @@ class _EauGrandLyonGlobalBase(CoordinatorEntity[EauGrandLyonCoordinator], Sensor
 class EauGrandLyonAlertesSensor(_EauGrandLyonGlobalBase):
     """Nombre d'alertes actives sur l'ensemble des contrats."""
 
-    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_state_class = SensorStateClass.TOTAL
     _attr_icon = "mdi:bell-alert"
     _attr_name = "Alertes actives"
     _attr_native_unit_of_measurement = "alertes"
@@ -823,7 +823,7 @@ class EauGrandLyonDerniereFactureSensor(_EauGrandLyonBase):
     """
 
     _attr_device_class = SensorDeviceClass.MONETARY
-    _attr_state_class  = SensorStateClass.MEASUREMENT
+    _attr_state_class  = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "EUR"
     _attr_icon = "mdi:receipt-text"
     _attr_name = "Dernière facture (€ TTC)"
@@ -893,7 +893,7 @@ class EauGrandLyonFuiteEstimeeSensor(_EauGrandLyonBase):
     """
 
     _attr_device_class = SensorDeviceClass.WATER
-    _attr_state_class  = SensorStateClass.MEASUREMENT
+    _attr_state_class  = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "m³"
     _attr_icon = "mdi:water-alert"
     _attr_name = "Fuite estimée 30 jours"
@@ -976,7 +976,7 @@ class EauGrandLyonPredictionConsoSensor(_EauGrandLyonBase):
     """Sensor de prédiction de consommation fin de mois (m³)."""
 
     _attr_device_class = SensorDeviceClass.WATER
-    _attr_state_class  = SensorStateClass.MEASUREMENT
+    _attr_state_class  = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "m³"
     _attr_icon = "mdi:chart-bell-curve-cumulative"
     _attr_name = "Prédiction consommation mensuelle"
@@ -995,7 +995,7 @@ class EauGrandLyonPredictionCostSensor(_EauGrandLyonBase):
     """Sensor de prédiction de coût mensuel (EUR)."""
 
     _attr_device_class = SensorDeviceClass.MONETARY
-    _attr_state_class  = SensorStateClass.MEASUREMENT
+    _attr_state_class  = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "€"
     _attr_icon = "mdi:cash-clock"
     _attr_name = "Prédiction coût mensuel"
@@ -1037,7 +1037,7 @@ class EauGrandLyonGlobalCostSensor(_EauGrandLyonGlobalBase):
     """Somme des coûts du mois courant pour tous les contrats."""
 
     _attr_device_class = SensorDeviceClass.MONETARY
-    _attr_state_class  = SensorStateClass.MEASUREMENT
+    _attr_state_class  = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "€"
     _attr_icon = "mdi:cash-multiple"
     _attr_name = "Coût global mensuel"
@@ -1056,7 +1056,7 @@ class EauGrandLyonGlobalPredictionCostSensor(_EauGrandLyonGlobalBase):
     """Somme des prédictions de coût pour tous les contrats."""
 
     _attr_device_class = SensorDeviceClass.MONETARY
-    _attr_state_class  = SensorStateClass.MEASUREMENT
+    _attr_state_class  = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "€"
     _attr_icon = "mdi:cash-clock"
     _attr_name = "Prédiction coût global mensuel"
@@ -1124,6 +1124,7 @@ class EauGrandLyonCO2FootprintSensor(_EauGrandLyonBase):
     """Empreinte carbone de la consommation d'eau (kg CO2e)."""
 
     _attr_icon = "mdi:molecule-co2"
+    _attr_state_class = SensorStateClass.TOTAL
     _attr_name = "Empreinte carbone"
     _attr_native_unit_of_measurement = "kg CO2e"
     _attr_suggested_display_precision = 2

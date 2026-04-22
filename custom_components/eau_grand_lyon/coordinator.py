@@ -670,6 +670,7 @@ class EauGrandLyonCoordinator(DataUpdateCoordinator[dict]):
             metadata = StatisticMetaData(
                 has_mean=False,
                 has_sum=True,
+                mean_type=None,
                 name=f"Eau Grand Lyon - Compteur {ref}",
                 source=DOMAIN,
                 statistic_id=statistic_id,
