@@ -84,7 +84,7 @@ Pour activer l'intégration Energy :
 > ⚠️ **Non disponible dans cette version** — les notifications Pushover/Telegram et automatisations intelligentes ne sont pas encore implémentées. 
 
 ## Prérequis
-- Home Assistant (version 2021.3.0 ou ultérieure recommandée)
+- Home Assistant (`2024.1.0` ou ultérieure)
 - Un compte valide avec Eau du Grand Lyon (email et mot de passe)
 
 ## Installation
@@ -93,6 +93,23 @@ Pour activer l'intégration Energy :
 1. Téléchargez la dernière version depuis le [dépôt GitHub](https://github.com/morgeek/HA-Plugin-pour-Eau-du-Grand-Lyon).
 2. Extrayez le contenu du dossier `custom_components/eau_grand_lyon/` dans le répertoire `custom_components/` de votre Home Assistant.
 3. Redémarrez Home Assistant.
+
+Arborescence attendue après copie manuelle :
+
+```text
+/config/custom_components/eau_grand_lyon/manifest.json
+/config/custom_components/eau_grand_lyon/__init__.py
+/config/custom_components/eau_grand_lyon/config_flow.py
+...
+```
+
+Ne copiez pas le dépôt complet dans `/config/custom_components/` sinon vous obtiendrez un chemin invalide du type :
+
+```text
+/config/custom_components/eau_grand_lyon_component/custom_components/eau_grand_lyon/
+```
+
+Dans ce cas, Home Assistant ne trouvera pas l'intégration et affichera `Non chargé`.
 
 ### Option 2 : HACS
 1. Assurez-vous d'avoir [HACS](https://hacs.xyz/) installé dans votre instance Home Assistant.
@@ -124,6 +141,40 @@ Une fois configuré, les capteurs apparaîtront dans votre tableau de bord Home 
 Merci @painteau pour le fix et @hufon pour le merge.
 - **Aucune donnée** : Les données eau sont mises à jour mensuellement. Si aucune donnée n'apparaît, vérifiez le statut de votre contrat.
 - **Erreurs** : Vérifiez les journaux Home Assistant pour tout message d'erreur lié à l'intégration.
+
+### Erreur `Integration 'eau_grand_lyon' not found`
+
+Si vous voyez dans les logs :
+
+```text
+Unable to get manifest for integration eau_grand_lyon: Integration 'eau_grand_lyon' not found.
+```
+
+le problème n'est généralement pas l'API Eau du Grand Lyon mais l'installation locale de l'intégration.
+
+Checklist de réparation :
+
+1. Vérifiez que ce fichier existe bien :
+   `/config/custom_components/eau_grand_lyon/manifest.json`
+2. Vérifiez que le dossier s'appelle exactement `eau_grand_lyon`
+3. Si vous utilisez HACS, désinstallez puis réinstallez l'intégration, puis redémarrez Home Assistant
+4. Si le dossier est absent mais que la carte d'intégration existe encore dans Home Assistant, supprimez l'entrée d'intégration bloquée puis réinstallez
+5. Faites un redémarrage complet de Home Assistant après réinstallation
+
+En cas de doute, la structure valide est :
+
+```text
+/config/custom_components/eau_grand_lyon/
+  manifest.json
+  __init__.py
+  api.py
+  config_flow.py
+  coordinator.py
+  sensor.py
+  binary_sensor.py
+  button.py
+  translations/
+```
 
 ### Fonctionnalités à venir
 **Multi-utilisateurs**

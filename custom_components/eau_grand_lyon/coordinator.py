@@ -136,16 +136,28 @@ class EauGrandLyonCoordinator(DataUpdateCoordinator[dict]):
 
         # Dernières données valides connues (utilisées en mode hors-ligne)
         self._last_good_data: dict | None = None
+        self._persistent_data_loaded = False
+        self._persistent_data_lock = asyncio.Lock()
 
         # Cache persistant pour l'historique
         self._store = Store(hass, 1, f"{DOMAIN}_{entry.entry_id}_history")
-        hass.async_create_task(self._load_persistent_data())
 
         if experimental:
             _LOGGER.info(
                 "Eau du Grand Lyon — mode EXPÉRIMENTAL activé : nouveaux endpoints /rest/produits/"
                 " actifs. En cas de problème, désactivez dans les options de l'intégration."
             )
+
+    async def async_initialize(self) -> None:
+        """Charge le cache persistant avant le premier rafraîchissement."""
+        if self._persistent_data_loaded:
+            return
+
+        async with self._persistent_data_lock:
+            if self._persistent_data_loaded:
+                return
+            await self._load_persistent_data()
+            self._persistent_data_loaded = True
 
     async def _load_persistent_data(self) -> None:
         """Charge les données persistantes depuis le store."""

@@ -18,6 +18,7 @@ PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.BINARY_SENSOR, Platform.B
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Initialise l'intégration depuis une config entry."""
     coordinator = EauGrandLyonCoordinator(hass, entry)
+    await coordinator.async_initialize()
 
     # Récupération initiale des données (bloquant jusqu'au premier succès)
     await coordinator.async_config_entry_first_refresh()

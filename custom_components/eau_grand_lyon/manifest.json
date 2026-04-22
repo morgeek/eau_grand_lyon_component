@@ -1,9 +1,11 @@
 {
   "domain": "eau_grand_lyon",
   "name": "Eau du Grand Lyon",
-  "version": "2.2.5beta",
+  "version": "2.2.5",
   "config_flow": true,
   "documentation": "https://github.com/morgeek/ha-eau-grand-lyon",
+  "issue_tracker": "https://github.com/morgeek/ha-eau-grand-lyon/issues",
+  "integration_type": "service",
   "requirements": [],
   "dependencies": [],
   "codeowners": ["@morgeek"],
