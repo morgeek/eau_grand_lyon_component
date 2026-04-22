@@ -5,6 +5,17 @@ Tous les changements notables apportés à cette intégration seront documentés
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 et cette intégration adhère au [Versionnage Sémantique](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.5beta] - 2026-04-22
+
+### Ajouté
+- **Mode expérimental (API 2026)** : support des nouveaux endpoints découverts dans le bundle Angular 2026.
+- Nouveaux sensors : **Dernière facture** et **Fuite estimée 30 jours** (compteurs Téléo compatibles).
+- Templates Lovelace mis à jour avec des cartes conditionnelles pour les fonctions expérimentales.
+- Support de la courbe de charge (données sub-journalières) via API 2026.
+
+### Modifié
+- Documentation (README) mise à jour avec les informations sur l'API 2026.
+
 ## [2.2.4] - 2026-03-22
 
 ### Ajouté
