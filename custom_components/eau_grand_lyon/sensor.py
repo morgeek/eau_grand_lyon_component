@@ -32,6 +32,8 @@ async def async_setup_entry(
 
     entities: list[SensorEntity] = []
 
+    experimental = bool((coordinator.data or {}).get("experimental_mode", False))
+
     for ref, _contract in (coordinator.data or {}).get("contracts", {}).items():
         # ── Tableau de bord Énergie HA ────────────────────────────────
         entities.append(EauGrandLyonIndexSensor(coordinator, entry, ref))
@@ -57,6 +59,10 @@ async def async_setup_entry(
         entities.append(EauGrandLyonSoldeSensor(coordinator, entry, ref))
         entities.append(EauGrandLyonStatutSensor(coordinator, entry, ref))
         entities.append(EauGrandLyonDateEcheanceSensor(coordinator, entry, ref))
+        # ── [EXPÉRIMENTAL] Sensors des nouveaux endpoints ─────────────
+        if experimental:
+            entities.append(EauGrandLyonDerniereFactureSensor(coordinator, entry, ref))
+            entities.append(EauGrandLyonFuiteEstimeeSensor(coordinator, entry, ref))
 
     # ── Sensors globaux ───────────────────────────────────────────────
     entities.append(EauGrandLyonAlertesSensor(coordinator, entry))
@@ -742,11 +748,140 @@ class EauGrandLyonHealthSensor(_EauGrandLyonGlobalBase):
         data = self.coordinator.data or {}
         attrs: dict[str, Any] = {
             "last_update_success_time": data.get("last_update_success_time"),
-            "last_error": data.get("last_error"),
-            "last_error_type": data.get("last_error_type"),
-            "offline_mode": data.get("offline_mode", False),
+            "last_error":               data.get("last_error"),
+            "last_error_type":          data.get("last_error_type"),
+            "offline_mode":             data.get("offline_mode", False),
+            "experimental_mode":        data.get("experimental_mode", False),
         }
         if data.get("offline_mode"):
             attrs["offline_since"] = data.get("offline_since")
             attrs["note"] = "Données issues du cache local — API indisponible"
         return attrs
+
+
+# ══════════════════════════════════════════════════════════════════════
+# [EXPÉRIMENTAL] Dernière facture
+# ══════════════════════════════════════════════════════════════════════
+
+class EauGrandLyonDerniereFactureSensor(_EauGrandLyonBase):
+    """[EXPÉRIMENTAL] Montant TTC de la dernière facture.
+
+    Disponible uniquement si le mode expérimental est activé dans les options.
+    Source : GET /rest/produits/factures (bundle Angular 2026).
+    """
+
+    _attr_device_class = SensorDeviceClass.MONETARY
+    _attr_state_class  = SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = "EUR"
+    _attr_icon = "mdi:receipt-text"
+    _attr_name = "Dernière facture (€ TTC)"
+    _attr_suggested_display_precision = 2
+    # Désactivé par défaut — l'utilisateur active manuellement après vérification
+    _attr_entity_registry_enabled_default = False
+
+    def __init__(self, coordinator, entry, contract_ref):
+        super().__init__(coordinator, entry, contract_ref)
+        self._attr_unique_id = f"{entry.entry_id}_{contract_ref}_derniere_facture"
+
+    @property
+    def available(self) -> bool:
+        """Disponible uniquement si une facture a été remontée par l'API."""
+        return (
+            super().available
+            and self._contract.get("derniere_facture") is not None
+        )
+
+    @property
+    def native_value(self) -> float | None:
+        facture = self._contract.get("derniere_facture")
+        if not facture:
+            return None
+        return facture.get("montant_ttc")
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        facture = self._contract.get("derniere_facture") or {}
+        factures = self._contract.get("factures", [])
+        return {
+            "référence":          facture.get("reference", ""),
+            "date_édition":       facture.get("date_edition"),
+            "date_exigibilité":   facture.get("date_exigibilite"),
+            "montant_ht_eur":     facture.get("montant_ht"),
+            "montant_ttc_eur":    facture.get("montant_ttc"),
+            "volume_m3":          facture.get("volume_m3"),
+            "statut_paiement":    facture.get("statut_paiement", ""),
+            "nb_factures_total":  len(factures),
+            "historique_factures": [
+                {
+                    "référence":        f.get("reference"),
+                    "date_édition":     f.get("date_edition"),
+                    "montant_ttc_eur":  f.get("montant_ttc"),
+                    "statut_paiement":  f.get("statut_paiement"),
+                }
+                for f in factures[:12]  # 12 dernières factures max en attribut
+            ],
+            "source": "expérimental — /rest/produits/factures",
+        }
+
+
+# ══════════════════════════════════════════════════════════════════════
+# [EXPÉRIMENTAL] Volume de fuite estimé
+# ══════════════════════════════════════════════════════════════════════
+
+class EauGrandLyonFuiteEstimeeSensor(_EauGrandLyonBase):
+    """[EXPÉRIMENTAL] Volume de fuite estimé sur les 30 derniers jours (m³).
+
+    Ce champ (volumeFuiteEstime) est remontré par le nouvel endpoint
+    /rest/produits/contrats/{id}/consommationsJournalieres, uniquement sur
+    les compteurs Téléo récents qui calculent la fuite nocturne.
+
+    Une valeur > 0 peut indiquer une fuite sur le circuit intérieur.
+    Le binary_sensor "Alerte fuite possible" reste basé sur la surconsommation
+    mensuelle (méthode legacy) — ce sensor est complémentaire.
+    """
+
+    _attr_device_class = SensorDeviceClass.WATER
+    _attr_state_class  = SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = "m³"
+    _attr_icon = "mdi:water-alert"
+    _attr_name = "Fuite estimée 30 jours"
+    _attr_suggested_display_precision = 3
+    _attr_entity_registry_enabled_default = False  # désactivé par défaut
+
+    def __init__(self, coordinator, entry, contract_ref):
+        super().__init__(coordinator, entry, contract_ref)
+        self._attr_unique_id = f"{entry.entry_id}_{contract_ref}_fuite_estimee"
+
+    @property
+    def available(self) -> bool:
+        """Disponible uniquement si le compteur remonte des données de fuite."""
+        return (
+            super().available
+            and self._contract.get("fuite_estime_30j_m3") is not None
+        )
+
+    @property
+    def native_value(self) -> float | None:
+        return self._contract.get("fuite_estime_30j_m3")
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        daily = self._contract.get("consommations_journalieres", [])
+        recent_30 = daily[-30:]
+        detail = [
+            {
+                "date":                  e["date"],
+                "volume_fuite_estime_m3": e.get("volume_fuite_estime_m3", 0),
+            }
+            for e in recent_30
+            if "volume_fuite_estime_m3" in e
+        ]
+        return {
+            "nb_jours_avec_donnée":  len(detail),
+            "détail_journalier":     detail,
+            "note": (
+                "Volume de fuite nocturne estimé par le compteur Téléo. "
+                "Non nul = possible fuite sur circuit intérieur."
+            ),
+            "source": "expérimental — volumeFuiteEstime dans /rest/produits/contrats/{id}/consommationsJournalieres",
+        }

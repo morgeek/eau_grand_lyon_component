@@ -20,9 +20,11 @@ from .api import (
 )
 from .const import (
     CONF_EMAIL,
+    CONF_EXPERIMENTAL,
     CONF_PASSWORD,
     CONF_TARIF_M3,
     CONF_UPDATE_INTERVAL_HOURS,
+    DEFAULT_EXPERIMENTAL,
     DEFAULT_TARIF_M3,
     DEFAULT_UPDATE_INTERVAL_HOURS,
     DOMAIN,
@@ -151,6 +153,7 @@ class EauGrandLyonOptionsFlowHandler(config_entries.OptionsFlow):
             if CONF_TARIF_M3 in opts
             else self._config_entry.data.get(CONF_TARIF_M3, DEFAULT_TARIF_M3)
         )
+        current_experimental = bool(opts.get(CONF_EXPERIMENTAL, DEFAULT_EXPERIMENTAL))
 
         options_schema = vol.Schema(
             {
@@ -162,6 +165,10 @@ class EauGrandLyonOptionsFlowHandler(config_entries.OptionsFlow):
                     CONF_TARIF_M3,
                     default=current_tarif,
                 ): vol.All(vol.Coerce(float), vol.Range(min=0.5, max=30.0)),
+                vol.Optional(
+                    CONF_EXPERIMENTAL,
+                    default=current_experimental,
+                ): bool,
             }
         )
 

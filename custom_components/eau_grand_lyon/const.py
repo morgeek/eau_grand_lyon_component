@@ -15,3 +15,11 @@ CONF_TARIF_M3 = "tarif_m3"
 # Modifiable directement depuis les options de l'intégration dans HA
 DEFAULT_TARIF_M3 = 5.20
 
+# Mode expérimental — nouveaux endpoints découverts dans le bundle Angular 2026
+# Active : /rest/produits/factures, /rest/produits/contrats/{id}/consommationsJournalieres
+#          (avec dateDebut/dateFin), /rest/interfaces/ael/contrats/{id}/courbeDeCharge,
+#          et la tentative des nouvelles URLs d'authentification (sans /application/).
+# Les anciens endpoints restent en fallback automatique — rien ne casse.
+CONF_EXPERIMENTAL = "experimental_api"
+DEFAULT_EXPERIMENTAL = False
+

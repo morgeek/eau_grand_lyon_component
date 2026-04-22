@@ -26,10 +26,14 @@
     "step": {
       "init": {
         "title": "Options Eau du Grand Lyon",
-        "description": "Configurez l'intervalle de mise à jour et le tarif au m³.",
+        "description": "Configurez l'intervalle de mise à jour, le tarif au m³ et le mode expérimental.",
         "data": {
           "update_interval_hours": "Fréquence de mise à jour",
-          "tarif_m3": "Tarif au m³ (€)"
+          "tarif_m3": "Tarif au m³ (€)",
+          "experimental_api": "⚗️ Mode expérimental (nouveaux endpoints API 2026)"
+        },
+        "data_description": {
+          "experimental_api": "Active les nouveaux endpoints /rest/produits/ découverts dans le bundle Angular 2026 : factures réelles, fuite estimée journalière, courbe de charge. Un fallback automatique sur les anciens endpoints est toujours actif — rien ne casse. Désactivez si vous observez des erreurs inattendues."
         }
       }
     }
