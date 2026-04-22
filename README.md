@@ -52,6 +52,14 @@ Cette version inclut un nouveau mode basé sur les endpoints découverts dans le
 - **Modernisation** : Utilise les dernières routes API sans le préfixe `/application/`, offrant potentiellement une meilleure stabilité future.
 - **Sécurité & Fallback** : Si un nouvel endpoint échoue ou retourne une erreur 404, l'intégration bascule automatiquement sur l'API stable (legacy). Rien ne casse.
 - **Activation** : Désactivé par défaut. Peut être activé dans les options de l'intégration (**Configurer**).
+Allez dans Paramètres > Appareils et services.
+Recherchez l'intégration Eau du Grand Lyon.
+Cliquez sur le bouton Configurer (ou Options selon votre version de HA).
+Cochez la case Mode expérimental (API 2026)
+
+Si votre compteur est compatible et que les nouveaux endpoints répondent, les nouveaux capteurs apparaîtront automatiquement (pensez à vérifier s'ils sont désactivés par défaut dans l'interface des entités).
+
+En cas d'erreur avec la nouvelle API, l'intégration repassera automatiquement sur l'ancienne version pour assurer la continuité des données.
 
 ### Dashboard Lovelace
 - Template complet : `lovelace/dashboard.yaml`
@@ -73,7 +81,7 @@ Pour activer l'intégration Energy :
 
 ### Notifications Avancées
 
-> ⚠️ **Non disponible dans cette version** — les notifications Pushover/Telegram, alertes vocales et automatisations intelligentes ne sont pas encore implémentées. Cette fonctionnalité est prévue pour une version future.
+> ⚠️ **Non disponible dans cette version** — les notifications Pushover/Telegram et automatisations intelligentes ne sont pas encore implémentées. 
 
 ## Prérequis
 - Home Assistant (version 2021.3.0 ou ultérieure recommandée)
@@ -113,6 +121,7 @@ Une fois configuré, les capteurs apparaîtront dans votre tableau de bord Home 
 
 ## Dépannage
 - **Problèmes d'authentification** : Assurez-vous que votre email et mot de passe sont corrects. L'intégration utilise l'API officielle d'Eau du Grand Lyon.
+Merci @painteau pour le fix et @hufon pour le merge.
 - **Aucune donnée** : Les données eau sont mises à jour mensuellement. Si aucune donnée n'apparaît, vérifiez le statut de votre contrat.
 - **Erreurs** : Vérifiez les journaux Home Assistant pour tout message d'erreur lié à l'intégration.
 
