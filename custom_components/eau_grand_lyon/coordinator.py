@@ -11,6 +11,7 @@ import aiohttp
 
 import calendar
 import re
+from typing import TYPE_CHECKING, Any
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.storage import Store
@@ -26,7 +27,7 @@ try:
 except ImportError:
     _HAS_RECORDER = False
 
-if False: # TYPE_CHECKING
+if TYPE_CHECKING:
     from .__init__ import EauGrandLyonConfigEntry
 
 from .api import (

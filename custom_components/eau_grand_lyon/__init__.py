@@ -9,6 +9,7 @@ from datetime import datetime
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.typing import ConfigType
 
 from .const import DOMAIN
 from .coordinator import EauGrandLyonCoordinator
@@ -25,6 +26,12 @@ PLATFORMS: list[Platform] = [
     Platform.SWITCH,
     Platform.CALENDAR,
 ]
+
+
+async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
+    """Initialise l'intégration Eau du Grand Lyon."""
+    hass.data.setdefault(DOMAIN, {})
+    return True
 
 
 async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
@@ -87,14 +94,15 @@ def _async_setup_services(hass: HomeAssistant) -> None:
         """Exporte les données vers un fichier CSV."""
         export_path = call.data.get("path", "/config/exports/eau_grand_lyon_history.csv")
         _LOGGER.info("Service export_data appelé — export vers %s", export_path)
-        
-        try:
+
+        def _do_export():
+            """Opération de fichier bloquante effectuée dans l'executor."""
             os.makedirs(os.path.dirname(export_path), exist_ok=True)
             with open(export_path, 'w', newline='', encoding='utf-8') as csvfile:
                 writer = csv.writer(csvfile)
                 # Header
                 writer.writerow(["Contrat", "Type", "Date/Label", "Valeur (m3)", "Détails"])
-                
+
                 for entry in hass.config_entries.async_entries(DOMAIN):
                     if not hasattr(entry, "runtime_data"):
                         continue
@@ -105,17 +113,20 @@ def _async_setup_services(hass: HomeAssistant) -> None:
                         # Mensuel
                         for c_entry in contract.get("consommations", []):
                             writer.writerow([
-                                ref, "MENSUEL", c_entry.get("label"), 
-                                c_entry.get("consommation_m3"), 
+                                ref, "MENSUEL", c_entry.get("label"),
+                                c_entry.get("consommation_m3"),
                                 f"Année {c_entry.get('annee')}"
                             ])
                         # Journalier
                         for c_entry in contract.get("consommations_journalieres", []):
                             writer.writerow([
-                                ref, "JOURNALIER", c_entry.get("date"), 
-                                c_entry.get("consommation_m3"), 
+                                ref, "JOURNALIER", c_entry.get("date"),
+                                c_entry.get("consommation_m3"),
                                 f"Index {c_entry.get('index_m3')}"
                             ])
+
+        try:
+            await hass.async_add_executor_job(_do_export)
             _LOGGER.info("Export réussi : %s", export_path)
         except Exception as err:
             _LOGGER.error("Erreur lors de l'export CSV : %s", err)
@@ -124,7 +135,7 @@ def _async_setup_services(hass: HomeAssistant) -> None:
         """Télécharge la dernière facture PDF."""
         target_path = call.data.get("path", "/config/www/eau_grand_lyon/latest_invoice.pdf")
         _LOGGER.info("Service download_latest_invoice appelé — cible: %s", target_path)
-        
+
         for entry in hass.config_entries.async_entries(DOMAIN):
             if not hasattr(entry, "runtime_data"):
                 continue
@@ -139,9 +150,13 @@ def _async_setup_services(hass: HomeAssistant) -> None:
                     ref = latest["reference"]
                     try:
                         pdf_data = await coord.api.get_invoice_pdf(ref)
-                        os.makedirs(os.path.dirname(target_path), exist_ok=True)
-                        with open(target_path, "wb") as f:
-                            f.write(pdf_data)
+
+                        def _save_pdf():
+                            os.makedirs(os.path.dirname(target_path), exist_ok=True)
+                            with open(target_path, "wb") as f:
+                                f.write(pdf_data)
+
+                        await hass.async_add_executor_job(_save_pdf)
                         _LOGGER.info("Facture %s téléchargée avec succès", ref)
                         return # On s'arrête à la première trouvée
                     except Exception as err:

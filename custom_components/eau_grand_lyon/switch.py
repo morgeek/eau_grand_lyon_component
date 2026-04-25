@@ -18,7 +18,7 @@ async def async_setup_entry(
     """Configure les switchs depuis une config entry."""
     from .coordinator import EauGrandLyonCoordinator
     
-    coordinator: EauGrandLyonCoordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator = entry.runtime_data
     async_add_entities([EauGrandLyonVacationSwitch(coordinator, entry)])
 
 class EauGrandLyonVacationSwitch(SwitchEntity):

@@ -22,7 +22,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Crée le bouton de rafraîchissement."""
-    coordinator: EauGrandLyonCoordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator = entry.runtime_data
     async_add_entities([EauGrandLyonRefreshButton(coordinator, entry)])
 
 
