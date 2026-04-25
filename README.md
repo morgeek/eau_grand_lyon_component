@@ -8,12 +8,15 @@ Ceci est une intégration personnalisée NON OFFICIELLE pour [Home Assistant](ht
 
 ![alt text](https://github.com/morgeek/HA-Plugin-pour-Eau-du-Grand-Lyon/blob/main/custom_components/eau_grand_lyon/HA-Eau-Grand-Lyon2.png)
 
-![alt text](https://github.com/morgeek/HA-Plugin-pour-Eau-du-Grand-Lyon/blob/main/custom_components/eau_grand_lyon/HA-Eau-Grand-Lyon3.png)
-
-![alt text](https://github.com/morgeek/HA-Plugin-pour-Eau-du-Grand-Lyon/blob/main/custom_components/eau_grand_lyon/HA-Eau-Grand-Lyon4.png)
 ## Historique des versions
 
 Voir le [CHANGELOG.md](CHANGELOG.md) pour l'historique complet des changements.
+
+### 🚀 Modernisation HA 2026 (v2.4.0)
+- **Pleine Conformité HA 2026** : Alignement total avec les standards de développement Home Assistant 2026.
+- **Internationalisation Native** : Support complet des `translation_key` pour une interface multilingue fluide.
+- **Architecture Haute Performance** : Migration vers `entry.runtime_data` et optimisation des statistiques à long terme (`StatisticMeanType`).
+- **Prêt pour HACS 2.0** : Validation rigoureuse des métadonnées pour une installation sans accroc.
 
 ### 🧠 Intelligence Avancée & Coaching "Platinum"
 - **Eco-Coach (IA) 💎** : Sensor de conseil personnalisé qui analyse vos habitudes pour vous aider à réduire votre consommation quotidiennement.
@@ -129,8 +132,6 @@ Dans ce cas, Home Assistant ne trouvera pas l'intégration et affichera `Non cha
 Une fois installée, vous pouvez modifier les options (tarif au m³, intervalle de mise à jour, mode expérimental) en retournant dans **Appareils et services** > **Eau du Grand Lyon** > **Configurer**.
 
 L'intégration récupérera automatiquement les données toutes les **24 heures** par défaut (car les données eau sont généralement mensuelles). Cet intervalle est modifiable dans les options (6h, 12h, 24h, 48h). Et on ne va pas tabasser leur serveur inutilement.
-
-![alt text](https://github.com/morgeek/HA-Plugin-pour-Eau-du-Grand-Lyon/blob/main/custom_components/eau_grand_lyon/HA-Eau-Grand-Lyon2.png)
 
 ## Utilisation
 Une fois configuré, les capteurs apparaîtront dans votre tableau de bord Home Assistant. Vous pouvez les utiliser dans des automatisations, des tableaux de bord, ou de toute autre manière que vous utilisez les capteurs dans Home Assistant.
