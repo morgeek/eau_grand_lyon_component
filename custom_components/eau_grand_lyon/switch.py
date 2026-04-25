@@ -5,6 +5,7 @@ from typing import Any
 from homeassistant.components.switch import SwitchEntity, SwitchDeviceClass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN
@@ -48,8 +49,8 @@ class EauGrandLyonVacationSwitch(SwitchEntity):
         self.async_write_ha_state()
 
     @property
-    def device_info(self) -> dict:
-        return {
-            "identifiers": {(DOMAIN, self._entry.entry_id)},
-            "name": "Eau du Grand Lyon",
-        }
+    def device_info(self) -> DeviceInfo:
+        return DeviceInfo(
+            identifiers={(DOMAIN, self._entry.entry_id)},
+            name="Eau du Grand Lyon",
+        )

@@ -5,6 +5,22 @@ Tous les changements notables apportés à cette intégration seront documentés
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 et cette intégration adhère au [Versionnage Sémantique](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.0] - 2026-04-25
+
+### Ajouté
+- **Conformité HA 2026** : Modernisation complète de l'intégration pour répondre aux standards Home Assistant les plus récents.
+- **Support Multilingue** : Ajout de clés de traduction (`translation_key`) pour tous les capteurs via `strings.json`, permettant une internationalisation native.
+
+### Optimisé
+- **Gestion d'État** : Migration vers `entry.runtime_data` (introduit dans HA 2024.4), remplaçant l'ancienne méthode `hass.data[DOMAIN]`, garantissant une meilleure isolation et sécurité.
+- **Architecture** : Découpage massif de la logique de récupération des données (`_fetch_all_data`) en sous-méthodes modulaires pour une meilleure lisibilité et robustesse.
+- **Statistiques** : Mise à jour de l'API d'injection (`StatisticMeanType`) pour assurer la compatibilité avec HA 2025.x et 2026.x.
+- **HACS Boot** : Alignement strict des versions `homeassistant` entre `hacs.json` et `manifest.json` pour garantir une validation sans erreur par HACS 2.0+.
+
+### Corrigé
+- **Service Facture** : Résolution d'un bug critique (crash) lors du téléchargement du PDF causé par une référence manquante (`self._headers`).
+- **Compatibilité Python** : Correction de syntaxes non-rétrocompatibles (ex: `type`) pour assurer le fonctionnement sur Python 3.9+.
+
 ## [2.3.0] - 2026-04-22
 
 ### Ajouté

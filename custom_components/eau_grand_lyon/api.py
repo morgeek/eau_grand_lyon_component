@@ -721,11 +721,17 @@ class EauGrandLyonApi:
 
     async def get_invoice_pdf(self, invoice_ref: str) -> bytes:
         """[EXPÉRIMENTAL] Télécharge le PDF d'une facture."""
+        await self._ensure_auth()
         url = f"{BASE_URL}/rest/produits/factures/{invoice_ref}/document"
-        async with self._session.get(url, headers=self._headers) as resp:
-            if resp.status != 200:
-                raise NetworkError(f"Erreur téléchargement PDF ({resp.status})")
-            return await resp.read()
+        headers = {"Authorization": f"Bearer {self._access_token}"}
+        try:
+            async with self._session.get(url, headers=headers) as resp:
+                if resp.status != 200:
+                    raise NetworkError(f"Erreur téléchargement PDF ({resp.status})")
+                return await resp.read()
+        except aiohttp.ClientError as err:
+            raise NetworkError(f"Erreur réseau lors du téléchargement PDF: {err}") from err
+
 
     @staticmethod
     def format_consumptions(raw_entries: list[dict]) -> list[dict]:

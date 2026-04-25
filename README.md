@@ -84,7 +84,10 @@ L'intégration inclut désormais des **Blueprints** (modèles d'automatisation) 
 
 ## Installation
 
-### Option 1 : Installation a l'ancienne
+> [!CAUTION]
+> **IMPORTANT** : Avant d'installer cette intégration ou toute autre extension personnalisée, effectuez toujours une **sauvegarde complète (Backup)** de votre configuration Home Assistant. L'auteur ne peut être tenu responsable en cas de perte de données ou d'instabilité de votre instance.
+
+### Option 1 : Installation à l'ancienne
 1. Téléchargez la dernière version depuis le [dépôt GitHub](https://github.com/morgeek/HA-Plugin-pour-Eau-du-Grand-Lyon).
 2. Extrayez le contenu du dossier `custom_components/eau_grand_lyon/` dans le répertoire `custom_components/` de votre Home Assistant.
 3. Redémarrez Home Assistant.
@@ -183,5 +186,13 @@ Les contributions sont les bienvenues ! N'hésitez pas à proposer des features
 ## Licence
 Ce projet est sous licence MIT - voir le fichier LICENSE pour plus de détails.
 
-## Avertissement
-Cette intégration n'est pas officiellement affiliée à Eau du Grand Lyon ou Grand Lyon Métropole. Utilisez à vos propres risques.
+## Clause de non-responsabilité
+
+Cette intégration est fournie "telle quelle", sans garantie d'aucune sorte, expresse ou implicite. Bien que tout soit mis en œuvre pour assurer la stabilité et la sécurité du plugin, son utilisation reste sous votre entière responsabilité. 
+
+L'auteur ne peut être tenu responsable :
+- Des dommages directs ou indirects causés à votre instance Home Assistant.
+- De toute perte de données.
+- De tout blocage de compte ou changement de politique d'accès de la part du service Eau du Grand Lyon.
+
+Cette intégration n'est en aucun cas officiellement affiliée, approuvée ou maintenue par Eau du Grand Lyon ou la Métropole de Lyon.

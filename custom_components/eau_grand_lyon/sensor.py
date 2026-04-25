@@ -18,19 +18,20 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN
-from .coordinator import EauGrandLyonCoordinator
+from .__init__ import EauGrandLyonConfigEntry
 
 _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: ConfigEntry,
+    entry: EauGrandLyonConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Crée toutes les entités sensor après chargement de la config entry."""
-    coordinator: EauGrandLyonCoordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator = entry.runtime_data
     contracts = (coordinator.data or {}).get("contracts", {})
+
 
     entities: list[SensorEntity] = []
 
@@ -106,12 +107,16 @@ class _EauGrandLyonBase(CoordinatorEntity[EauGrandLyonCoordinator], SensorEntity
     def __init__(
         self,
         coordinator: EauGrandLyonCoordinator,
-        entry: ConfigEntry,
+        entry: EauGrandLyonConfigEntry,
         contract_ref: str,
+        description: SensorEntityDescription | None = None,
     ) -> None:
         super().__init__(coordinator)
         self._contract_ref = contract_ref
         self._entry = entry
+        if description:
+            self.entity_description = description
+            self._attr_unique_id = f"{entry.entry_id}_{contract_ref}_{description.key}"
 
     @property
     def _contract(self) -> dict:
@@ -140,6 +145,7 @@ class _EauGrandLyonBase(CoordinatorEntity[EauGrandLyonCoordinator], SensorEntity
             serial_number=numero_compteur,
             configuration_url="https://agence.eaudugrandlyon.com",
         )
+
 
 
 # ══════════════════════════════════════════════════════════════════════

@@ -16,18 +16,18 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN
-from .coordinator import EauGrandLyonCoordinator
+from .__init__ import EauGrandLyonConfigEntry
 
 _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: ConfigEntry,
+    entry: EauGrandLyonConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Crée les binary sensors Eau du Grand Lyon."""
-    coordinator: EauGrandLyonCoordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator = entry.runtime_data
 
     entities: list[BinarySensorEntity] = []
     for ref in (coordinator.data or {}).get("contracts", {}):

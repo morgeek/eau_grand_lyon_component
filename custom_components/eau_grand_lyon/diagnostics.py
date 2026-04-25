@@ -10,7 +10,7 @@ async def async_get_config_entry_diagnostics(
     hass: HomeAssistant, entry: ConfigEntry
 ) -> dict[str, Any]:
     """Retourne les diagnostics pour une config entry (redacté)."""
-    from homeassistant.components.diagnostics import redact_sensitive_data
+    from homeassistant.components.diagnostics import async_redact_data
     from .const import CONF_EMAIL, CONF_PASSWORD, DOMAIN
     from .coordinator import EauGrandLyonCoordinator
     
@@ -24,7 +24,8 @@ async def async_get_config_entry_diagnostics(
         "contrat_id",
     }
     
-    coordinator: EauGrandLyonCoordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator = entry.runtime_data
+
 
     diagnostics_data = {
         "entry": {
@@ -35,4 +36,4 @@ async def async_get_config_entry_diagnostics(
         "coordinator_data": coordinator.data,
     }
 
-    return redact_sensitive_data(diagnostics_data, to_redact)
+    return async_redact_data(diagnostics_data, to_redact)
