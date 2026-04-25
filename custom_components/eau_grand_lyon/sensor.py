@@ -163,7 +163,7 @@ class EauGrandLyonIndexSensor(_EauGrandLyonBase):
     _attr_state_class = SensorStateClass.TOTAL_INCREASING
     _attr_native_unit_of_measurement = "m³"
     _attr_icon = "mdi:water-pump"
-    _attr_name = "Index cumulatif"
+    translation_key = "water_index"
     _attr_suggested_display_precision = 1
 
     def __init__(self, coordinator, entry, contract_ref):
@@ -213,11 +213,7 @@ class EauGrandLyonConsommationSensor(_EauGrandLyonBase):
     def __init__(self, coordinator, entry, contract_ref, period: str):
         super().__init__(coordinator, entry, contract_ref)
         self._period = period
-        self._attr_name = (
-            "Consommation mois courant"
-            if period == "courant"
-            else "Consommation mois précédent"
-        )
+        self.translation_key = f"conso_{period}"
         self._attr_unique_id = f"{entry.entry_id}_{contract_ref}_conso_{period}"
 
     @property
@@ -288,7 +284,7 @@ class EauGrandLyonConsommationAnnuelleSensor(_EauGrandLyonBase):
     _attr_state_class = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "m³"
     _attr_icon = "mdi:water-outline"
-    _attr_name = "Consommation annuelle (12 mois)"
+    translation_key = "conso_annuelle"
     _attr_suggested_display_precision = 1
 
     def __init__(self, coordinator, entry, contract_ref):
@@ -338,7 +334,7 @@ class EauGrandLyonConso7JSensor(_EauGrandLyonDailyBase):
     _attr_state_class = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "m³"
     _attr_icon = "mdi:water-sync"
-    _attr_name = "Consommation 7 jours"
+    translation_key = "conso_7j"
     _attr_suggested_display_precision = 2
     _attr_entity_registry_enabled_default = False  # désactivé par défaut
 
@@ -368,7 +364,7 @@ class EauGrandLyonConso30JSensor(_EauGrandLyonDailyBase):
     _attr_state_class = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "m³"
     _attr_icon = "mdi:water-sync"
-    _attr_name = "Consommation 30 jours"
+    translation_key = "conso_30j"
     _attr_suggested_display_precision = 2
     _attr_entity_registry_enabled_default = False  # désactivé par défaut
 
@@ -405,7 +401,7 @@ class EauGrandLyonCoutMoisSensor(_EauGrandLyonBase):
     _attr_state_class = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "EUR"
     _attr_icon = "mdi:water-percent"
-    _attr_name = "Coût estimé mois courant"
+    translation_key = "cout_mois"
     _attr_suggested_display_precision = 2
 
     def __init__(self, coordinator, entry, contract_ref):
@@ -434,7 +430,7 @@ class EauGrandLyonCoutAnnuelSensor(_EauGrandLyonBase):
     _attr_state_class = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "EUR"
     _attr_icon = "mdi:currency-eur"
-    _attr_name = "Coût estimé annuel (12 mois)"
+    translation_key = "cout_annuel"
     _attr_suggested_display_precision = 2
 
     def __init__(self, coordinator, entry, contract_ref):
@@ -462,7 +458,7 @@ class EauGrandLyonCoutCumuleSensor(_EauGrandLyonBase):
     _attr_state_class = SensorStateClass.TOTAL_INCREASING
     _attr_native_unit_of_measurement = "EUR"
     _attr_icon = "mdi:currency-eur"
-    _attr_name = "Coût cumulé année"
+    translation_key = "cout_cumule"
     _attr_suggested_display_precision = 2
     _attr_entity_registry_enabled_default = False  # désactivé par défaut
 
@@ -500,7 +496,7 @@ class EauGrandLyonEconomieSensor(_EauGrandLyonBase):
     _attr_state_class = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "EUR"
     _attr_icon = "mdi:trending-down"
-    _attr_name = "Économie vs N-1"
+    translation_key = "economie"
 
     def __init__(self, coordinator, entry, contract_ref):
         super().__init__(coordinator, entry, contract_ref)
@@ -538,7 +534,7 @@ class EauGrandLyonSoldeSensor(_EauGrandLyonBase):
     _attr_state_class = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "EUR"
     _attr_icon = "mdi:currency-eur"
-    _attr_name = "Solde compte"
+    translation_key = "solde"
     _attr_suggested_display_precision = 2
 
     def __init__(self, coordinator, entry, contract_ref):
@@ -567,7 +563,7 @@ class EauGrandLyonStatutSensor(_EauGrandLyonBase):
     """Statut du contrat (actif, résilié, etc.)."""
 
     _attr_icon = "mdi:file-document-check"
-    _attr_name = "Statut contrat"
+    translation_key = "statut"
 
     def __init__(self, coordinator, entry, contract_ref):
         super().__init__(coordinator, entry, contract_ref)
@@ -600,7 +596,7 @@ class EauGrandLyonDateEcheanceSensor(_EauGrandLyonBase):
 
     _attr_device_class = SensorDeviceClass.DATE
     _attr_icon = "mdi:calendar-end"
-    _attr_name = "Fin de contrat"
+    translation_key = "date_echeance"
 
     def __init__(self, coordinator, entry, contract_ref):
         super().__init__(coordinator, entry, contract_ref)
@@ -632,7 +628,7 @@ class EauGrandLyonEnergyWaterSensor(_EauGrandLyonBase):
     _attr_state_class = SensorStateClass.TOTAL_INCREASING
     _attr_native_unit_of_measurement = "m³"
     _attr_icon = "mdi:water"
-    _attr_name = "Consommation eau (Énergie)"
+    translation_key = "energy_water"
     _attr_suggested_display_precision = 1
     _attr_entity_registry_enabled_default = False  # désactivé par défaut
 
@@ -671,7 +667,7 @@ class EauGrandLyonEnergyCostSensor(_EauGrandLyonBase):
     _attr_state_class = SensorStateClass.TOTAL_INCREASING
     _attr_native_unit_of_measurement = "EUR"
     _attr_icon = "mdi:currency-eur"
-    _attr_name = "Coûts eau (Énergie)"
+    translation_key = "energy_cost"
     _attr_suggested_display_precision = 2
     _attr_entity_registry_enabled_default = False  # désactivé par défaut
 
@@ -745,7 +741,7 @@ class EauGrandLyonAlertesSensor(_EauGrandLyonGlobalBase):
 
     _attr_state_class = SensorStateClass.TOTAL
     _attr_icon = "mdi:bell-alert"
-    _attr_name = "Alertes actives"
+    translation_key = "alertes"
     _attr_native_unit_of_measurement = "alertes"
 
     def __init__(self, coordinator, entry):
@@ -768,7 +764,7 @@ class EauGrandLyonLastUpdateSensor(_EauGrandLyonGlobalBase):
 
     _attr_device_class = SensorDeviceClass.TIMESTAMP
     _attr_icon = "mdi:clock-check-outline"
-    _attr_name = "Dernière mise à jour"
+    translation_key = "last_update"
 
     def __init__(self, coordinator, entry):
         super().__init__(coordinator, entry)
@@ -793,7 +789,7 @@ class EauGrandLyonHealthSensor(_EauGrandLyonGlobalBase):
     """Statut global de l'intégration (API/connexion)."""
 
     _attr_icon = "mdi:heart-pulse"
-    _attr_name = "Statut API"
+    translation_key = "health"
 
     def __init__(self, coordinator: EauGrandLyonCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator, entry)
@@ -842,7 +838,7 @@ class EauGrandLyonDerniereFactureSensor(_EauGrandLyonBase):
     _attr_state_class  = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "EUR"
     _attr_icon = "mdi:receipt-text"
-    _attr_name = "Dernière facture (€ TTC)"
+    translation_key = "derniere_facture"
     _attr_suggested_display_precision = 2
     # Désactivé par défaut — l'utilisateur active manuellement après vérification
     _attr_entity_registry_enabled_default = False
@@ -912,7 +908,7 @@ class EauGrandLyonFuiteEstimeeSensor(_EauGrandLyonBase):
     _attr_state_class  = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "m³"
     _attr_icon = "mdi:water-alert"
-    _attr_name = "Fuite estimée 30 jours"
+    translation_key = "fuite_estimee"
     _attr_suggested_display_precision = 3
     _attr_entity_registry_enabled_default = False  # désactivé par défaut
 
@@ -968,7 +964,7 @@ class EauGrandLyonTrendSensor(_EauGrandLyonBase):
     _attr_state_class  = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = "%"
     _attr_icon = "mdi:trending-up"
-    _attr_name = "Tendance vs N-1"
+    translation_key = "trend"
     _attr_suggested_display_precision = 1
 
     def __init__(self, coordinator, entry, contract_ref):
@@ -995,7 +991,7 @@ class EauGrandLyonPredictionConsoSensor(_EauGrandLyonBase):
     _attr_state_class  = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "m³"
     _attr_icon = "mdi:chart-bell-curve-cumulative"
-    _attr_name = "Prédiction consommation mensuelle"
+    translation_key = "prediction_conso"
     _attr_suggested_display_precision = 1
 
     def __init__(self, coordinator, entry, contract_ref):
@@ -1014,7 +1010,7 @@ class EauGrandLyonPredictionCostSensor(_EauGrandLyonBase):
     _attr_state_class  = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "€"
     _attr_icon = "mdi:cash-clock"
-    _attr_name = "Prédiction coût mensuel"
+    translation_key = "prediction_cost"
     _attr_suggested_display_precision = 2
 
     def __init__(self, coordinator, entry, contract_ref):
@@ -1037,7 +1033,7 @@ class EauGrandLyonGlobalConsoSensor(_EauGrandLyonGlobalBase):
     _attr_state_class  = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = "m³"
     _attr_icon = "mdi:water-group"
-    _attr_name = "Consommation globale mensuelle"
+    translation_key = "global_conso"
     _attr_suggested_display_precision = 1
 
     def __init__(self, coordinator, entry):
@@ -1056,7 +1052,7 @@ class EauGrandLyonGlobalCostSensor(_EauGrandLyonGlobalBase):
     _attr_state_class  = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "€"
     _attr_icon = "mdi:cash-multiple"
-    _attr_name = "Coût global mensuel"
+    translation_key = "global_cost"
     _attr_suggested_display_precision = 2
 
     def __init__(self, coordinator, entry):
@@ -1075,7 +1071,7 @@ class EauGrandLyonGlobalPredictionCostSensor(_EauGrandLyonGlobalBase):
     _attr_state_class  = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "€"
     _attr_icon = "mdi:cash-clock"
-    _attr_name = "Prédiction coût global mensuel"
+    translation_key = "global_prediction"
     _attr_suggested_display_precision = 2
 
     def __init__(self, coordinator, entry):
@@ -1095,7 +1091,7 @@ class EauGrandLyonEcoScoreSensor(_EauGrandLyonBase):
     """Note de performance environnementale (A-G)."""
 
     _attr_icon = "mdi:leaf"
-    _attr_name = "Eco-Score"
+    translation_key = "eco_score"
 
     def __init__(self, coordinator, entry, contract_ref):
         super().__init__(coordinator, entry, contract_ref)
@@ -1118,7 +1114,7 @@ class EauGrandLyonDroughtSensor(_EauGrandLyonGlobalBase):
     """Statut des restrictions d'eau (Sécheresse) dans le Rhône."""
 
     _attr_icon = "mdi:water-off"
-    _attr_name = "Restrictions Sécheresse (69)"
+    translation_key = "drought"
 
     def __init__(self, coordinator, entry):
         super().__init__(coordinator, entry)
@@ -1147,7 +1143,7 @@ class EauGrandLyonLimescaleSensor(_EauGrandLyonBase):
     _attr_state_class  = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "g"
     _attr_icon = "mdi:shimmer"
-    _attr_name = "Accumulation de calcaire"
+    translation_key = "limescale"
     _attr_suggested_display_precision = 0
 
     def __init__(self, coordinator, entry, contract_ref):
@@ -1170,7 +1166,7 @@ class EauGrandLyonCoachingSensor(_EauGrandLyonBase):
     """Conseils personnalisés basés sur l'analyse de consommation."""
 
     _attr_icon = "mdi:account-voice"
-    _attr_name = "Conseils Eco-Coach"
+    translation_key = "coaching"
 
     def __init__(self, coordinator, entry, contract_ref):
         super().__init__(coordinator, entry, contract_ref)
@@ -1202,7 +1198,7 @@ class EauGrandLyonCO2FootprintSensor(_EauGrandLyonBase):
 
     _attr_icon = "mdi:molecule-co2"
     _attr_state_class = SensorStateClass.TOTAL
-    _attr_name = "Empreinte carbone"
+    translation_key = "co2_footprint"
     _attr_native_unit_of_measurement = "kg CO2e"
     _attr_suggested_display_precision = 2
 
@@ -1228,7 +1224,7 @@ class EauGrandLyonSignalSensor(_EauGrandLyonBase):
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = "%"
     _attr_icon = "mdi:signal-variant"
-    _attr_name = "Signal module Téléo"
+    translation_key = "signal"
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
     def __init__(self, coordinator, entry, contract_ref):

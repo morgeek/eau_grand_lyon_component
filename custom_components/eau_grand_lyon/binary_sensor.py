@@ -89,7 +89,7 @@ class EauGrandLyonLeakAlertSensor(_EauGrandLyonBinaryBase):
     """Alerte possible fuite basée sur surconsommation mensuelle."""
 
     _attr_device_class = BinarySensorDeviceClass.PROBLEM
-    _attr_name = "Alerte fuite possible"
+    translation_key = "leak_alert"
 
     def __init__(self, coordinator, entry, contract_ref):
         super().__init__(coordinator, entry, contract_ref)
@@ -118,7 +118,7 @@ class EauGrandLyonRealTimeLeakSensor(_EauGrandLyonBinaryBase):
     """Alerte fuite en temps réel basée sur les données journalières (Téléo)."""
 
     _attr_device_class = BinarySensorDeviceClass.PROBLEM
-    _attr_name = "Détection fuite (Téléo)"
+    translation_key = "real_time_leak"
     _attr_entity_registry_enabled_default = False
 
     def __init__(self, coordinator, entry, contract_ref):
@@ -151,7 +151,7 @@ class EauGrandLyonLocalLeakSensor(_EauGrandLyonBinaryBase):
     """Alerte fuite basée sur une analyse de pattern locale (conso constante)."""
 
     _attr_device_class = BinarySensorDeviceClass.PROBLEM
-    _attr_name = "Alerte fuite (Pattern local)"
+    translation_key = "local_leak"
 
     def __init__(self, coordinator, entry, contract_ref):
         super().__init__(coordinator, entry, contract_ref)
@@ -173,7 +173,7 @@ class EauGrandLyonBatterySensor(_EauGrandLyonBinaryBase):
     """État de la pile du module Téléo."""
 
     _attr_device_class = BinarySensorDeviceClass.BATTERY
-    _attr_name = "Batterie module Téléo"
+    translation_key = "battery"
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
     def __init__(self, coordinator, entry, contract_ref):
@@ -190,7 +190,7 @@ class EauGrandLyonLimescaleAlertSensor(_EauGrandLyonBinaryBase):
     """Alerte accumulation excessive de calcaire."""
 
     _attr_device_class = BinarySensorDeviceClass.PROBLEM
-    _attr_name = "Alerte maintenance calcaire"
+    translation_key = "limescale_alert"
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
     def __init__(self, coordinator, entry, contract_ref):
