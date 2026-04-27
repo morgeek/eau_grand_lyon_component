@@ -1,0 +1,189 @@
+"""Fixtures partagées pour les tests Eau du Grand Lyon."""
+import sys
+import types
+from pathlib import Path
+from unittest.mock import AsyncMock, MagicMock
+
+import pytest
+
+# ---------------------------------------------------------------------------
+# Stub homeassistant package so tests run without a real HA installation
+# ---------------------------------------------------------------------------
+
+def _make_module(name: str, **attrs) -> types.ModuleType:
+    mod = types.ModuleType(name)
+    for k, v in attrs.items():
+        setattr(mod, k, v)
+    sys.modules[name] = mod
+    return mod
+
+
+def _stub_homeassistant() -> None:
+    """Register minimal HA stubs so component imports don't explode."""
+    if "homeassistant" in sys.modules:
+        return
+
+    # Base package
+    ha = _make_module("homeassistant")
+    _make_module("homeassistant.core", HomeAssistant=MagicMock)
+    _make_module("homeassistant.const", EntityCategory=MagicMock(), Platform=MagicMock())
+    class _ConfigEntry:
+        def __class_getitem__(cls, item): return cls
+
+    class _ConfigFlow:
+        """Stub ConfigFlow that accepts domain= keyword."""
+        def __init_subclass__(cls, domain=None, **kw): super().__init_subclass__(**kw)
+
+    _make_module("homeassistant.config_entries",
+        ConfigEntry=_ConfigEntry,
+        ConfigFlow=_ConfigFlow,
+        OptionsFlow=MagicMock,
+    )
+    _make_module("homeassistant.helpers")
+    _make_module("homeassistant.helpers.typing", ConfigType=MagicMock)
+    _make_module("homeassistant.helpers.storage", Store=MagicMock)
+    _make_module("homeassistant.helpers.device_registry", DeviceInfo=MagicMock)
+    _make_module("homeassistant.helpers.entity_platform", AddEntitiesCallback=MagicMock)
+    class _GenericBase:
+        def __class_getitem__(cls, item): return cls
+
+    _make_module(
+        "homeassistant.helpers.update_coordinator",
+        DataUpdateCoordinator=_GenericBase,
+        CoordinatorEntity=_GenericBase,
+        UpdateFailed=Exception,
+    )
+
+    sensor_mod = _make_module(
+        "homeassistant.components.sensor",
+        SensorEntity=object,
+        SensorEntityDescription=MagicMock,
+        SensorDeviceClass=MagicMock(),
+        SensorStateClass=MagicMock(),
+    )
+    _make_module(
+        "homeassistant.components.binary_sensor",
+        BinarySensorEntity=object,
+        BinarySensorDeviceClass=MagicMock(),
+    )
+    _make_module("homeassistant.components.button", ButtonEntity=object)
+    _make_module("homeassistant.components.switch", SwitchEntity=object)
+    _make_module("homeassistant.components.calendar", CalendarEntity=object, CalendarEvent=MagicMock)
+    _make_module("homeassistant.components.recorder")
+    _make_module(
+        "homeassistant.components.recorder.models",
+        StatisticData=MagicMock,
+        StatisticMetaData=MagicMock,
+    )
+    _make_module(
+        "homeassistant.components.recorder.statistics",
+        async_add_external_statistics=AsyncMock(),
+        StatisticMeanType=MagicMock(),
+    )
+    _make_module(
+        "homeassistant.components.repairs",
+        ConfirmRepairFlow=object,
+        RepairsFlow=object,
+    )
+    _make_module("homeassistant.helpers.issue_registry",
+        async_create_issue=AsyncMock(),
+        async_delete_issue=AsyncMock(),
+        IssueSeverity=MagicMock(),
+    )
+    _make_module("homeassistant.helpers.aiohttp_client")
+    _make_module("aiohttp")
+    _make_module("tenacity",
+        retry=lambda **kw: (lambda f: f),
+        stop_after_attempt=MagicMock(),
+        wait_exponential=MagicMock(),
+        retry_if_exception_type=MagicMock(),
+    )
+
+    # voluptuous stub — only the parts config_flow uses
+    class _Range:
+        def __init__(self, **kw): pass
+        def __call__(self, v): return v
+
+    class _Length:
+        def __init__(self, **kw): pass
+        def __call__(self, v): return v
+
+    class _All:
+        def __init__(self, *validators): self._v = validators
+        def __call__(self, v):
+            for fn in self._v:
+                v = fn(v)
+            return v
+
+    class _In:
+        def __init__(self, container): self._c = container
+        def __call__(self, v):
+            if v not in self._c:
+                raise ValueError(f"{v!r} not in {self._c}")
+            return v
+
+    class _Schema:
+        def __init__(self, schema): self._schema = schema
+        def __call__(self, data): return data
+
+    class _Required:
+        def __init__(self, key): self.key = key
+        def __hash__(self): return hash(self.key)
+        def __eq__(self, other): return self.key == other
+
+    class _Optional:
+        def __init__(self, key, default=None): self.key = key; self.default = default
+        def __hash__(self): return hash(self.key)
+        def __eq__(self, other): return self.key == other
+
+    class _Coerce:
+        def __init__(self, typ): self._t = typ
+        def __call__(self, v): return self._t(v)
+
+    class _Invalid(Exception):
+        pass
+
+    vol = types.ModuleType("voluptuous")
+    vol.Schema   = _Schema
+    vol.Required = _Required
+    vol.Optional = _Optional
+    vol.All      = _All
+    vol.Range    = _Range
+    vol.Length   = _Length
+    vol.In       = _In
+    vol.Coerce   = _Coerce
+    vol.Invalid  = _Invalid
+    sys.modules["voluptuous"] = vol
+
+
+_stub_homeassistant()
+
+# Add component root to path so "from .coordinator import ..." resolves
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+
+# ---------------------------------------------------------------------------
+# Shared fixtures
+# ---------------------------------------------------------------------------
+
+@pytest.fixture
+def sample_consos():
+    """12 months of monthly consumption entries."""
+    return [
+        {"annee": 2024, "mois_index": i, "label": f"Mois {i}", "consommation_m3": 10.0 + i}
+        for i in range(12)
+    ]
+
+
+@pytest.fixture
+def sample_daily():
+    """30 daily consumption entries."""
+    import datetime
+    base = datetime.date(2024, 3, 1)
+    return [
+        {
+            "date": (base + datetime.timedelta(days=i)).isoformat(),
+            "consommation_m3": 0.3 + i * 0.01,
+        }
+        for i in range(30)
+    ]

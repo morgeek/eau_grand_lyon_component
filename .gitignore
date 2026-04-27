@@ -1,9 +1,7 @@
 custom_components/eau_grand_lyon/.DS_Store
 .DS_Store
 .gitignore
-/tests
 .continue
 .claude
 .pytest_cache
-pytest.ini
-Claude.md
+CLAUDE.md
