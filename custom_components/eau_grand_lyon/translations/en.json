@@ -17,6 +17,15 @@
           "email": "Email",
           "password": "Password"
         }
+      },
+      "reconfigure": {
+        "title": "Reconfigure Eau du Grand Lyon",
+        "description": "Modify your credentials or connection settings.",
+        "data": {
+          "email": "Email",
+          "password": "Password",
+          "tarif_m3": "Price per m³ (€)"
+        }
       }
     },
     "error": {
@@ -29,7 +38,9 @@
     "abort": {
       "already_configured": "This account is already configured.",
       "reauth_successful": "Reauthentication successful.",
-      "reauth_failed": "Reauthentication failed."
+      "reauth_failed": "Reauthentication failed.",
+      "reconfigure_successful": "Reconfiguration successful.",
+      "reconfigure_failed": "Reconfiguration failed."
     }
   },
   "options": {

@@ -158,6 +158,81 @@ class EauGrandLyonConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             },
         )
 
+    async def async_step_reconfigure(
+        self, user_input: dict[str, Any] | None = None
+    ) -> config_entries.FlowResult:
+        """Flux de reconfiguration : permet de changer les identifiants."""
+        config_entry = self.hass.config_entries.async_get_entry(
+            self.context["entry_id"]
+        )
+        if not config_entry:
+            return self.async_abort(reason="reconfigure_failed")
+
+        errors: dict[str, str] = {}
+
+        if user_input is not None:
+            email = user_input[CONF_EMAIL]
+            password = user_input[CONF_PASSWORD]
+
+            async with aiohttp.ClientSession(cookie_jar=aiohttp.CookieJar(unsafe=True)) as session:
+                api = EauGrandLyonApi(session, email, password)
+                try:
+                    await api.authenticate()
+                except AuthenticationError as err:
+                    _LOGGER.warning("Reconfig auth échouée: %s", err)
+                    errors["base"] = "invalid_auth"
+                except WafBlockedError as err:
+                    _LOGGER.warning("Blocage WAF: %s", err)
+                    errors["base"] = "waf_blocked"
+                except NetworkError as err:
+                    _LOGGER.warning("Erreur réseau: %s", err)
+                    errors["base"] = "cannot_connect"
+                except ApiError as err:
+                    _LOGGER.warning("Erreur API: %s", err)
+                    errors["base"] = "api_error"
+                except Exception as err:  # noqa: BLE001
+                    _LOGGER.exception("Erreur inattendue: %s", err)
+                    errors["base"] = "unknown"
+                else:
+                    self.hass.config_entries.async_update_entry(
+                        config_entry,
+                        data={
+                            **config_entry.data,
+                            CONF_EMAIL: email,
+                            CONF_PASSWORD: password,
+                        },
+                    )
+                    await self.hass.config_entries.async_reload(config_entry.entry_id)
+                    return self.async_abort(reason="reconfigure_successful")
+
+        # Pré-remplir avec les données courantes
+        current_email = config_entry.data.get(CONF_EMAIL, "")
+        current_tarif = float(
+            config_entry.options.get(CONF_TARIF_M3)
+            if CONF_TARIF_M3 in config_entry.options
+            else config_entry.data.get(CONF_TARIF_M3, DEFAULT_TARIF_M3)
+        )
+
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_EMAIL, default=current_email): vol.All(
+                        str, _validate_email
+                    ),
+                    vol.Required(CONF_PASSWORD): vol.All(str, vol.Length(min=4)),
+                    vol.Optional(
+                        CONF_TARIF_M3,
+                        default=current_tarif,
+                    ): vol.All(vol.Coerce(float), vol.Range(min=0.5, max=30.0)),
+                }
+            ),
+            errors=errors,
+            description_placeholders={
+                "site_url": "https://agence.eaudugrandlyon.com",
+            },
+        )
+
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.FlowResult:
