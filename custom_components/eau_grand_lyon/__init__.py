@@ -7,7 +7,7 @@ import os
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, HomeAssistantError, ServiceValidationError
 from homeassistant.helpers.typing import ConfigType
 
 from .const import DOMAIN
@@ -79,19 +79,28 @@ def _async_setup_services(hass: HomeAssistant) -> None:
 
     async def async_handle_clear_cache(_):
         _LOGGER.info("Service clear_cache appelé — réinitialisation de tous les caches")
-        for entry in hass.config_entries.async_entries(DOMAIN):
-            if hasattr(entry, "runtime_data"):
-                await entry.runtime_data.async_clear_cache()
-    
+        try:
+            for entry in hass.config_entries.async_entries(DOMAIN):
+                if hasattr(entry, "runtime_data"):
+                    await entry.runtime_data.async_clear_cache()
+        except Exception as err:
+            raise HomeAssistantError(f"Failed to clear cache: {err}") from err
+
     async def async_handle_update_now(_):
         _LOGGER.info("Service update_now appelé — rafraîchissement immédiat")
-        for entry in hass.config_entries.async_entries(DOMAIN):
-            if hasattr(entry, "runtime_data"):
-                await entry.runtime_data.async_refresh()
+        try:
+            for entry in hass.config_entries.async_entries(DOMAIN):
+                if hasattr(entry, "runtime_data"):
+                    await entry.runtime_data.async_refresh()
+        except Exception as err:
+            raise HomeAssistantError(f"Failed to update: {err}") from err
 
     async def async_handle_export_data(call):
         """Exporte les données vers un fichier CSV."""
         export_path = call.data.get("path", "/config/exports/eau_grand_lyon_history.csv")
+        if not export_path or not isinstance(export_path, str):
+            raise ServiceValidationError("path must be a non-empty string")
+
         _LOGGER.info("Service export_data appelé — export vers %s", export_path)
 
         def _do_export():
@@ -127,12 +136,17 @@ def _async_setup_services(hass: HomeAssistant) -> None:
         try:
             await hass.async_add_executor_job(_do_export)
             _LOGGER.info("Export réussi : %s", export_path)
-        except Exception as err:
-            _LOGGER.error("Erreur lors de l'export CSV : %s", err)
+        except PermissionError as err:
+            raise HomeAssistantError(f"Permission denied writing to {export_path}") from err
+        except OSError as err:
+            raise HomeAssistantError(f"Failed to export data: {err}") from err
 
     async def async_handle_download_invoice(call):
         """Télécharge la dernière facture PDF."""
         target_path = call.data.get("path", "/config/www/eau_grand_lyon/latest_invoice.pdf")
+        if not target_path or not isinstance(target_path, str):
+            raise ServiceValidationError("path must be a non-empty string")
+
         _LOGGER.info("Service download_latest_invoice appelé — cible: %s", target_path)
 
         for entry in hass.config_entries.async_entries(DOMAIN):
@@ -157,9 +171,15 @@ def _async_setup_services(hass: HomeAssistant) -> None:
 
                         await hass.async_add_executor_job(_save_pdf)
                         _LOGGER.info("Facture %s téléchargée avec succès", ref)
-                        return # On s'arrête à la première trouvée
+                        return
+                    except PermissionError as err:
+                        raise HomeAssistantError(f"Permission denied writing to {target_path}") from err
+                    except (OSError, IOError) as err:
+                        raise HomeAssistantError(f"Failed to save invoice: {err}") from err
                     except Exception as err:
-                        _LOGGER.error("Erreur téléchargement facture : %s", err)
+                        raise HomeAssistantError(f"Failed to download invoice: {err}") from err
+
+        raise HomeAssistantError("No invoices found")
 
     hass.services.async_register(DOMAIN, "clear_cache", async_handle_clear_cache)
     hass.services.async_register(DOMAIN, "update_now",  async_handle_update_now)

@@ -25,7 +25,21 @@ def _stub_homeassistant() -> None:
 
     # Base package
     ha = _make_module("homeassistant")
-    _make_module("homeassistant.core", HomeAssistant=MagicMock)
+
+    class _HomeAssistantError(Exception):
+        """Mock HomeAssistantError."""
+        pass
+
+    class _ServiceValidationError(Exception):
+        """Mock ServiceValidationError."""
+        pass
+
+    _make_module(
+        "homeassistant.core",
+        HomeAssistant=MagicMock,
+        HomeAssistantError=_HomeAssistantError,
+        ServiceValidationError=_ServiceValidationError,
+    )
     _make_module("homeassistant.const", EntityCategory=MagicMock(), Platform=MagicMock())
     class _ConfigEntry:
         def __class_getitem__(cls, item): return cls
