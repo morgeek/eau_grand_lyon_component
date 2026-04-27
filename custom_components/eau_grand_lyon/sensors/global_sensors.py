@@ -6,6 +6,7 @@ from typing import Any
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import EntityCategory
 
 from .base import _EauGrandLyonGlobalBase
 from ..coordinator import EauGrandLyonCoordinator
@@ -15,6 +16,8 @@ class EauGrandLyonAlertesSensor(_EauGrandLyonGlobalBase):
     """Nombre d'alertes actives sur l'ensemble des contrats."""
 
     _attr_state_class = SensorStateClass.TOTAL
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_entity_registry_enabled_default = False
     translation_key = "alertes"
     _attr_native_unit_of_measurement = "alertes"
 
@@ -33,6 +36,8 @@ class EauGrandLyonLastUpdateSensor(_EauGrandLyonGlobalBase):
     """Horodatage de la dernière synchronisation réussie."""
 
     _attr_device_class = SensorDeviceClass.TIMESTAMP
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_entity_registry_enabled_default = False
     translation_key = "last_update"
 
     def __init__(self, coordinator, entry):
@@ -57,6 +62,8 @@ class EauGrandLyonLastUpdateSensor(_EauGrandLyonGlobalBase):
 class EauGrandLyonHealthSensor(_EauGrandLyonGlobalBase):
     """Statut global de l'intégration (API/connexion)."""
 
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_entity_registry_enabled_default = False
     translation_key = "health"
 
     def __init__(self, coordinator: EauGrandLyonCoordinator, entry: ConfigEntry) -> None:

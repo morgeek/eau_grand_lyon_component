@@ -14,6 +14,8 @@ class EauGrandLyonTrendSensor(_EauGrandLyonBase):
 
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = "%"
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_entity_registry_enabled_default = False
     translation_key = "trend"
     _attr_suggested_display_precision = 1
 
@@ -40,6 +42,7 @@ class EauGrandLyonPredictionConsoSensor(_EauGrandLyonBase):
     _attr_device_class = SensorDeviceClass.WATER
     _attr_state_class = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "m³"
+    _attr_entity_registry_enabled_default = False
     translation_key = "prediction_conso"
     _attr_suggested_display_precision = 1
 
@@ -58,6 +61,7 @@ class EauGrandLyonPredictionCostSensor(_EauGrandLyonBase):
     _attr_device_class = SensorDeviceClass.MONETARY
     _attr_state_class = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "€"
+    _attr_entity_registry_enabled_default = False
     translation_key = "prediction_cost"
     _attr_suggested_display_precision = 2
 
@@ -176,8 +180,9 @@ class EauGrandLyonSignalSensor(_EauGrandLyonBase):
 
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = "%"
-    translation_key = "signal"
     _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_entity_registry_enabled_default = False
+    translation_key = "signal"
 
     def __init__(self, coordinator, entry, contract_ref):
         super().__init__(coordinator, entry, contract_ref)
