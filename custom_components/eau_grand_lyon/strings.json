@@ -73,11 +73,7 @@
       "fields": {
         "path": {
           "name": "Chemin du fichier",
-          "description": "Chemin complet du fichier CSV (ex. /config/exports/eau.csv)",
-          "example": "/config/exports/eau_grand_lyon_history.csv",
-          "selector": {
-            "text": {}
-          }
+          "description": "Chemin complet du fichier CSV (ex. /config/exports/eau.csv)"
         }
       }
     },
@@ -87,83 +83,192 @@
       "fields": {
         "path": {
           "name": "Chemin de destination",
-          "description": "Chemin complet du fichier PDF (ex. /config/www/facture.pdf)",
-          "example": "/config/www/eau_grand_lyon/latest_invoice.pdf",
-          "selector": {
-            "text": {}
-          }
+          "description": "Chemin complet du fichier PDF (ex. /config/www/facture.pdf)"
         }
       }
     }
   },
   "entity": {
     "sensor": {
-      "water_index": { "name": "Index compteur" },
-      "energy_water": { "name": "Consommation (Énergie)" },
-      "energy_cost": { "name": "Coût (Énergie)" },
-      "conso_courant": { "name": "Consommation mois courant" },
-      "conso_precedent": { "name": "Consommation mois précédent" },
-      "conso_annuelle": { "name": "Consommation annuelle" },
-      "conso_7j": { "name": "Consommation 7 jours" },
-      "conso_30j": { "name": "Consommation 30 jours" },
-      "cout_mois": { "name": "Coût mois courant" },
-      "cout_annuel": { "name": "Coût annuel estimé" },
-      "cout_cumule": { "name": "Coût cumulé (Année)" },
-      "economie": { "name": "Économie potentielle" },
-      "solde": { "name": "Solde du compte" },
-      "statut": { "name": "Statut du contrat" },
-      "date_echeance": { "name": "Date de prochaine échéance" },
-      "derniere_facture": { "name": "Dernière facture" },
-      "fuite_estimee": { "name": "Fuite estimée (30j)" },
-      "trend": { "name": "Tendance vs N-1" },
-      "prediction_conso": { "name": "Prédiction consommation mois" },
-      "prediction_cost": { "name": "Prédiction coût mois" },
-      "eco_score": { "name": "Eco-Score (m³/pers/mois)" },
-      "co2_footprint": { "name": "Empreinte CO2" },
-      "signal": { "name": "Signal Téléo" },
-      "alertes": { "name": "Nombre d'alertes" },
-      "last_update": { "name": "Dernière mise à jour" },
-      "health": { "name": "Santé de l'intégration" },
-      "global_conso": { "name": "Consommation totale" },
-      "global_cost": { "name": "Coût total" },
-      "global_prediction": { "name": "Prédiction coût total" },
-      "drought": { "name": "Niveau de sécheresse" },
-      "limescale": { "name": "Calcaire cumulé" },
-      "coaching": { "name": "Conseil Eco-Coach" },
-      "cout_reel_mois": { "name": "Coût réel mensuel (avec abonnement)" },
-      "cout_reel_annuel": { "name": "Coût réel annuel (avec abonnement)" },
-      "hourly_conso": { "name": "Consommation dernière heure" },
-      "peak_hour": { "name": "Heure de pic de consommation" },
-      "avg_flow": { "name": "Débit moyen horaire" },
-      "water_hardness_live": { "name": "Dureté de l'eau (Open Data)" },
-      "nitrates": { "name": "Nitrates (Open Data)" },
-      "chlore": { "name": "Chlore résiduel (Open Data)" },
-      "next_outage": { "name": "Prochaine interruption de service" },
-      "compatibilite_compteur": { "name": "Compatibilité compteur" },
-      "index_journalier": { "name": "Index journalier (Energy)" },
-      "conso_moyenne_7j": { "name": "Consommation moyenne (7j)" },
-      "conso_hier": { "name": "Consommation d'hier" },
-      "prochaine_facture": { "name": "Prochaine facture" },
-      "prochaine_releve": { "name": "Prochain relevé compteur" },
-      "conso_annuelle_ref": { "name": "Conso. annuelle de référence" }
+      "water_index": {
+        "name": "Index compteur"
+      },
+      "energy_water": {
+        "name": "Consommation (Énergie)"
+      },
+      "energy_cost": {
+        "name": "Coût (Énergie)"
+      },
+      "conso_courant": {
+        "name": "Consommation mois courant"
+      },
+      "conso_precedent": {
+        "name": "Consommation mois précédent"
+      },
+      "conso_annuelle": {
+        "name": "Consommation annuelle"
+      },
+      "conso_7j": {
+        "name": "Consommation 7 jours"
+      },
+      "conso_30j": {
+        "name": "Consommation 30 jours"
+      },
+      "cout_mois": {
+        "name": "Coût mois courant"
+      },
+      "cout_annuel": {
+        "name": "Coût annuel estimé"
+      },
+      "cout_cumule": {
+        "name": "Coût cumulé (Année)"
+      },
+      "economie": {
+        "name": "Économie potentielle"
+      },
+      "solde": {
+        "name": "Solde du compte"
+      },
+      "statut": {
+        "name": "Statut du contrat"
+      },
+      "date_echeance": {
+        "name": "Date de prochaine échéance"
+      },
+      "derniere_facture": {
+        "name": "Dernière facture"
+      },
+      "fuite_estimee": {
+        "name": "Fuite estimée (30j)"
+      },
+      "trend": {
+        "name": "Tendance vs N-1"
+      },
+      "prediction_conso": {
+        "name": "Prédiction consommation mois"
+      },
+      "prediction_cost": {
+        "name": "Prédiction coût mois"
+      },
+      "eco_score": {
+        "name": "Eco-Score (m³/pers/mois)"
+      },
+      "co2_footprint": {
+        "name": "Empreinte CO2"
+      },
+      "signal": {
+        "name": "Signal Téléo"
+      },
+      "alertes": {
+        "name": "Nombre d'alertes"
+      },
+      "last_update": {
+        "name": "Dernière mise à jour"
+      },
+      "health": {
+        "name": "Santé de l'intégration"
+      },
+      "global_conso": {
+        "name": "Consommation totale"
+      },
+      "global_cost": {
+        "name": "Coût total"
+      },
+      "global_prediction": {
+        "name": "Prédiction coût total"
+      },
+      "drought": {
+        "name": "Niveau de sécheresse"
+      },
+      "limescale": {
+        "name": "Calcaire cumulé"
+      },
+      "coaching": {
+        "name": "Conseil Eco-Coach"
+      },
+      "cout_reel_mois": {
+        "name": "Coût réel mensuel (avec abonnement)"
+      },
+      "cout_reel_annuel": {
+        "name": "Coût réel annuel (avec abonnement)"
+      },
+      "hourly_conso": {
+        "name": "Consommation dernière heure"
+      },
+      "peak_hour": {
+        "name": "Heure de pic de consommation"
+      },
+      "avg_flow": {
+        "name": "Débit moyen horaire"
+      },
+      "water_hardness_live": {
+        "name": "Dureté de l'eau (Open Data)"
+      },
+      "nitrates": {
+        "name": "Nitrates (Open Data)"
+      },
+      "chlore": {
+        "name": "Chlore résiduel (Open Data)"
+      },
+      "next_outage": {
+        "name": "Prochaine interruption de service"
+      },
+      "compatibilite_compteur": {
+        "name": "Compatibilité compteur"
+      },
+      "index_journalier": {
+        "name": "Index journalier (Energy)"
+      },
+      "conso_moyenne_7j": {
+        "name": "Consommation moyenne (7j)"
+      },
+      "conso_hier": {
+        "name": "Consommation d'hier"
+      },
+      "prochaine_facture": {
+        "name": "Prochaine facture"
+      },
+      "prochaine_releve": {
+        "name": "Prochain relevé compteur"
+      },
+      "conso_annuelle_ref": {
+        "name": "Conso. annuelle de référence"
+      }
     },
     "button": {
-      "download_invoice": { "name": "Télécharger la dernière facture" }
+      "download_invoice": {
+        "name": "Télécharger la dernière facture"
+      }
     },
     "switch": {
-      "vacation_mode": { "name": "Mode vacances" }
+      "vacation_mode": {
+        "name": "Mode vacances"
+      }
     },
     "calendar": {
-      "billing_events": { "name": "Échéances & Facturation" }
+      "billing_events": {
+        "name": "Échéances & Facturation"
+      }
     },
     "binary_sensor": {
-      "leak_alert": { "name": "Alerte fuite possible" },
-      "real_time_leak": { "name": "Détection fuite (Téléo)" },
-      "local_leak": { "name": "Alerte fuite (Pattern local)" },
-      "battery": { "name": "Batterie module Téléo" },
-      "limescale_alert": { "name": "Alerte maintenance calcaire" },
-      "outage_alert": { "name": "Interruption de service (Travaux/Coupure)" }
+      "leak_alert": {
+        "name": "Alerte fuite possible"
+      },
+      "real_time_leak": {
+        "name": "Détection fuite (Téléo)"
+      },
+      "local_leak": {
+        "name": "Alerte fuite (Pattern local)"
+      },
+      "battery": {
+        "name": "Batterie module Téléo"
+      },
+      "limescale_alert": {
+        "name": "Alerte maintenance calcaire"
+      },
+      "outage_alert": {
+        "name": "Interruption de service (Travaux/Coupure)"
+      }
     }
   }
 }
-

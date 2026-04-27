@@ -246,11 +246,7 @@
       "fields": {
         "path": {
           "name": "File path",
-          "description": "Full path of the CSV file (e.g. /config/exports/eau.csv)",
-          "selector": {
-            "text": {}
-          },
-          "example": "/config/exports/eau_grand_lyon_history.csv"
+          "description": "Full path of the CSV file (e.g. /config/exports/eau.csv)"
         }
       }
     },
@@ -260,11 +256,7 @@
       "fields": {
         "path": {
           "name": "Destination path",
-          "description": "Full path of the PDF file (e.g. /config/www/invoice.pdf)",
-          "selector": {
-            "text": {}
-          },
-          "example": "/config/www/eau_grand_lyon/latest_invoice.pdf"
+          "description": "Full path of the PDF file (e.g. /config/www/invoice.pdf)"
         }
       }
     }
