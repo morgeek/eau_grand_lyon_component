@@ -44,7 +44,7 @@ async def async_setup_entry(
     # [FEAT 3] Coupure/Travaux planifiés — capteur global
     entities.append(EauGrandLyonOutageSensor(coordinator, entry))
 
-    async_add_entities(entities, update_before_add=True)
+    async_add_entities(entities, update_before_add=False)
 
 
 class _EauGrandLyonBinaryBase(
