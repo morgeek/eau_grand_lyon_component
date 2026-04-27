@@ -2,8 +2,11 @@
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
 [![Tests & Validation](https://github.com/morgeek/HA-Plugin-pour-Eau-du-Grand-Lyon/actions/workflows/tests.yaml/badge.svg?branch=main)](https://github.com/morgeek/HA-Plugin-pour-Eau-du-Grand-Lyon/actions/workflows/tests.yaml)
+[![Quality Scale - Gold](https://img.shields.io/badge/Quality%20Scale-Gold-4CAF50)](https://developers.home-assistant.io/docs/core/integration-quality-scale/)
 
 Ceci est une intégration personnalisée NON OFFICIELLE pour [Home Assistant](https://www.home-assistant.io/) qui fournit des capteurs pour les données de consommation d'eau du service Eau du Grand Lyon.
+
+> 🌟 **Gold Tier Certified** — Cette intégration satisfait tous les critères de qualité Home Assistant Gold : gestion d'erreurs robuste, flux de configuration avancés, traductions complètes, documentation détaillée, et 113 tests automatisés.
 
 ![alt text](https://raw.githubusercontent.com/morgeek/HA-Plugin-pour-Eau-du-Grand-Lyon/main/docs/screenshots/HA-Eau-Grand-Lyon.png)
 
@@ -16,6 +19,16 @@ Ceci est une intégration personnalisée NON OFFICIELLE pour [Home Assistant](ht
 ## Historique des versions
 
 Voir le [CHANGELOG.md](CHANGELOG.md) pour l'historique complet des changements.
+
+### ⭐ Certification Gold Home Assistant (v2.8.0)
+- **Quality Scale Gold** : Intégration certifiée conforme aux critères Gold de Home Assistant
+- **Flux Configuration Avancés** : Réauthentification automatique + reconfiguration des identifiants sans suppression
+- **Gestion d'Erreurs Pro** : Services qui lèvent `HomeAssistantError` / `ServiceValidationError` pour une meilleure traçabilité
+- **Icons & Exceptions Traduites** : `icons.json` + traductions multilingues des messages d'erreur
+- **Entités Catégorisées** : Capteurs diagnostiques (tendance, prédictions, alertes) masqués par défaut, `PARALLEL_UPDATES = 0`
+- **Documentation Gold** : 6 nouvelles sections — mise à jour données, appareils supportés, limitations, dépannage, cas d'usage, exemples
+- **Tests Complets** : 113 tests pytest + validation CI/CD (GitHub Actions)
+- **Aucun breaking change** — upgrade transparent depuis v2.7.0
 
 ### 🏗️ Refonte Architecturale & Audit HA (v2.7.0)
 - **Architecture Modulaire** : `sensor.py` (1800 lignes) découpé en 9 modules spécialisés dans `sensors/` pour une meilleure maintenabilité
