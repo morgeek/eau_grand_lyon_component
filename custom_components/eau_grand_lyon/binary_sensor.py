@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+from datetime import date, timedelta
 from typing import TYPE_CHECKING, Any
 
 from homeassistant.components.binary_sensor import (
@@ -236,7 +237,6 @@ class EauGrandLyonOutageSensor(
     @property
     def is_on(self) -> bool:
         """True si une interruption est imminente (dans les 48h) ou en cours."""
-        from datetime import date, timedelta
         interruptions = (self.coordinator.data or {}).get("interruptions", [])
         if not interruptions:
             return False

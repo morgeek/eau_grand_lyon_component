@@ -11,7 +11,7 @@ import aiohttp
 
 import calendar
 import re
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.storage import Store
@@ -37,7 +37,7 @@ from .api import (
     NetworkError,
     WafBlockedError,
 )
-from .repairs import async_check_drought_issue, async_check_long_outage_issue
+from .repairs import check_drought_issue, check_long_outage_issue
 from .const import (
     CONF_EMAIL,
     CONF_EXPERIMENTAL,
@@ -159,6 +159,12 @@ class EauGrandLyonCoordinator(DataUpdateCoordinator[dict]):
         self._last_request_mono: float | None = None
         self._min_request_delay_s: float = 30.0  # rate limiting : 30 s min entre requêtes
 
+        # Suivi de la santé des mises à jour
+        self._consecutive_failures: int = 0
+
+        # Cache du résultat de get_cumulative_index — invalidé à chaque mise à jour réussie
+        self._cumulative_index_cache: dict[str, float | None] = {}
+
         # Dernières données valides connues (utilisées en mode hors-ligne)
         self._last_good_data: dict | None = None
         self._persistent_data_loaded = False
@@ -257,18 +263,28 @@ class EauGrandLyonCoordinator(DataUpdateCoordinator[dict]):
                 data = await self._fetch_all_data()
                 now = datetime.now(timezone.utc)
                 data["last_update_success_time"] = now
-                data["last_error"]      = None
-                data["last_error_type"] = None
-                data["offline_mode"]    = False
-                data["offline_since"]   = None
+                data["last_error"]           = None
+                data["last_error_type"]      = None
+                data["offline_mode"]         = False
+                data["offline_since"]        = None
+                data["consecutive_failures"] = 0
+                self._consecutive_failures   = 0
+                self._cumulative_index_cache = {}
                 self._last_good_data = data
                 await self._save_persistent_data()
-                async_check_long_outage_issue(self.hass, 0)
+                check_long_outage_issue(self.hass, 0)
                 return data
 
             except WafBlockedError as err:
                 last_exc = err
                 last_err_type = "WafBlockedError"
+                self._consecutive_failures += 1
+                if self._consecutive_failures >= 5:
+                    _LOGGER.warning(
+                        "Eau du Grand Lyon — %d échecs consécutifs (WAF). "
+                        "Vérifiez l'intervalle de mise à jour dans les options (recommandé : 24h).",
+                        self._consecutive_failures,
+                    )
                 if attempt < len(_WAF_RETRY_DELAYS):
                     delay = _WAF_RETRY_DELAYS[attempt]
                     _LOGGER.warning(
@@ -280,6 +296,13 @@ class EauGrandLyonCoordinator(DataUpdateCoordinator[dict]):
             except NetworkError as err:
                 last_exc = err
                 last_err_type = "NetworkError"
+                self._consecutive_failures += 1
+                if self._consecutive_failures >= 5:
+                    _LOGGER.warning(
+                        "Eau du Grand Lyon — %d échecs consécutifs (réseau). "
+                        "Vérifiez la connectivité et le statut du service.",
+                        self._consecutive_failures,
+                    )
                 if attempt < len(_NET_RETRY_DELAYS):
                     delay = _NET_RETRY_DELAYS[attempt]
                     _LOGGER.warning(
@@ -309,14 +332,15 @@ class EauGrandLyonCoordinator(DataUpdateCoordinator[dict]):
                 cache.get("last_update_success_time", "inconnu"),
             )
             days_offline = (datetime.now(timezone.utc) - offline_since).days
-            async_check_long_outage_issue(self.hass, days_offline)
+            check_long_outage_issue(self.hass, days_offline)
 
             return {
                 **cache,
-                "offline_mode":    True,
-                "offline_since":   offline_since,
-                "last_error":      str(last_exc),
-                "last_error_type": last_err_type,
+                "offline_mode":         True,
+                "offline_since":        offline_since,
+                "last_error":           str(last_exc),
+                "last_error_type":      last_err_type,
+                "consecutive_failures": self._consecutive_failures,
             }
 
         raise UpdateFailed(f"Échec après 3 tentatives (aucun cache disponible): {last_exc}")
@@ -373,7 +397,7 @@ class EauGrandLyonCoordinator(DataUpdateCoordinator[dict]):
             global_data["nb_contracts"] += 1
 
         drought_level = self._get_drought_level()
-        async_check_drought_issue(self.hass, drought_level)
+        check_drought_issue(self.hass, drought_level)
         
         vacation_alert = self._check_vacation_alert(contracts_data)
 
@@ -837,17 +861,25 @@ class EauGrandLyonCoordinator(DataUpdateCoordinator[dict]):
         self._prev_nb_alertes = nb_alertes
 
     def get_cumulative_index(self, contract_ref: str) -> float | None:
-        """Récupère l'index cumulatif (index réel si dispo, sinon somme des consos)."""
+        """Récupère l'index cumulatif (index réel si dispo, sinon somme des consos).
+
+        Le résultat est mis en cache jusqu'à la prochaine mise à jour réussie —
+        plusieurs sensors (Index, Énergie eau, Énergie coût) appellent cette méthode
+        à chaque lecture d'état, ce qui évite de resommer toutes les consos à chaque fois.
+        """
         if not self.data:
             return None
+        if contract_ref in self._cumulative_index_cache:
+            return self._cumulative_index_cache[contract_ref]
         contract = self.data.get("contracts", {}).get(contract_ref, {})
         real = contract.get("real_index")
         if real is not None:
-            return round(real, 1)
-        consos = contract.get("consommations", [])
-        if not consos:
-            return None
-        return round(sum(e["consommation_m3"] for e in consos), 1)
+            result = round(real, 1)
+        else:
+            consos = contract.get("consommations", [])
+            result = round(sum(e["consommation_m3"] for e in consos), 1) if consos else None
+        self._cumulative_index_cache[contract_ref] = result
+        return result
 
 # ------------------------------------------------------------------
 # Helpers

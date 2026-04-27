@@ -10,7 +10,7 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN
+from .const import CONF_EXPERIMENTAL, DOMAIN
 from .coordinator import EauGrandLyonCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -26,7 +26,7 @@ async def async_setup_entry(
     entities = [EauGrandLyonRefreshButton(coordinator, entry)]
     
     # Bouton facture (si expérimental)
-    if entry.options.get("experimental_api"):
+    if entry.options.get(CONF_EXPERIMENTAL):
         entities.append(EauGrandLyonDownloadInvoiceButton(coordinator, entry))
         
     async_add_entities(entities)

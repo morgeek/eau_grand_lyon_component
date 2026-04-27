@@ -14,7 +14,7 @@
     "error": {
       "invalid_auth": "Identifiants incorrects. Vérifiez votre email et mot de passe.",
       "cannot_connect": "Impossible de se connecter au serveur. Vérifiez votre réseau.",
-      "waf_blocked": "La requête a été bloquée par le pare-feu web. Augmentez l'intervalle de mise à jour ou patientez.",
+      "waf_blocked": "La requête a été bloquée par le pare-feu web. Augmentez l'intervalle de mise à jour (recommandé : {recommended_interval}h) ou patientez quelques minutes.",
       "api_error": "Erreur côté API. Vérifiez le statut du service Eau du Grand Lyon.",
       "unknown": "Erreur inconnue. Consultez les logs Home Assistant pour plus de détails."
     },
@@ -40,8 +40,8 @@
           "price_entity": "Optionnel : Sélectionnez une entité (ex. sensor.prix_eau) pour utiliser le prix actuel au lieu de la valeur statique.",
           "experimental_api": "Active les nouveaux endpoints /rest/produits/ découverts dans le bundle Angular 2026 : factures réelles, fuite estimée journalière, courbe de charge. Un fallback automatique sur les anciens endpoints est toujours actif. Désactivez si vous observez des erreurs inattendues.",
           "household_size": "Utilisé pour calculer l'Eco-Score et les conseils personnalisés de l'Eco-Coach.",
-          "water_hardness": "Dureté en degrés Français (°fH). Utilisé pour estimer l'entartrage de vos appareils. Si vous avez un adoucisseur, réglez sur la dureté de sortie (ex. 10-15 °fH).",
-          "subscription_annual": "Montant annuel de la partie fixe de votre abonnement (hors consommation). Visible sur votre facture annuelle. Ex : 180 €/an. Laissez à 0 pour conserver l'ancien comportement."
+          "water_hardness": "Dureté en degrés Français (°fH). Moyenne Lyon : {hardness_lyon_avg} °fH. Si vous avez un adoucisseur, réglez sur la dureté de sortie (ex. 10-15 °fH).",
+          "subscription_annual": "Montant annuel de la partie fixe de votre abonnement (hors consommation), visible sur votre facture. Ex. Grand Lyon 2024 : ~{subscription_example} €/an. Laissez à 0 pour ne pas inclure l'abonnement dans les calculs de coût."
         }
       }
     }
@@ -71,7 +71,11 @@
       "fields": {
         "path": {
           "name": "Chemin du fichier",
-          "description": "Chemin complet du fichier CSV (ex. /config/exports/eau.csv)"
+          "description": "Chemin complet du fichier CSV (ex. /config/exports/eau.csv)",
+          "example": "/config/exports/eau_grand_lyon_history.csv",
+          "selector": {
+            "text": {}
+          }
         }
       }
     },
@@ -81,7 +85,11 @@
       "fields": {
         "path": {
           "name": "Chemin de destination",
-          "description": "Chemin complet du fichier PDF (ex. /config/www/facture.pdf)"
+          "description": "Chemin complet du fichier PDF (ex. /config/www/facture.pdf)",
+          "example": "/config/www/eau_grand_lyon/latest_invoice.pdf",
+          "selector": {
+            "text": {}
+          }
         }
       }
     }

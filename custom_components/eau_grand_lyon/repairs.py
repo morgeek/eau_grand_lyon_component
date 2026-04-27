@@ -7,6 +7,7 @@ from homeassistant.helpers import issue_registry as ir
 
 from .const import DOMAIN
 
+
 async def async_create_fix_flow(
     hass: HomeAssistant,
     issue_id: str,
@@ -17,7 +18,8 @@ async def async_create_fix_flow(
         return ConfirmRepairFlow()
     return None
 
-def async_check_drought_issue(hass: HomeAssistant, level: str) -> None:
+
+def check_drought_issue(hass: HomeAssistant, level: str) -> None:
     """Enregistre ou supprime une issue de sécheresse selon le niveau."""
     issue_id = "drought_alert"
     if level in ["Alerte", "Alerte Renforcée", "Crise"]:
@@ -34,7 +36,8 @@ def async_check_drought_issue(hass: HomeAssistant, level: str) -> None:
     else:
         ir.async_delete_issue(hass, DOMAIN, issue_id)
 
-def async_check_long_outage_issue(hass: HomeAssistant, days: int) -> None:
+
+def check_long_outage_issue(hass: HomeAssistant, days: int) -> None:
     """Enregistre ou supprime une issue si la panne dure trop longtemps."""
     issue_id = "long_outage"
     if days >= 7:

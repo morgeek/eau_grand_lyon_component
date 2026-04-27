@@ -1,10 +1,9 @@
 """Intégration Home Assistant pour Eau du Grand Lyon."""
 from __future__ import annotations
 
-import logging
 import csv
+import logging
 import os
-from datetime import datetime
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform

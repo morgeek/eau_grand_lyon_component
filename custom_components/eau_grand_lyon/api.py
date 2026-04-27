@@ -10,7 +10,6 @@ Deux modes de fonctionnement :
 """
 from __future__ import annotations
 
-import asyncio
 import base64
 import hashlib
 import json
@@ -39,11 +38,7 @@ _NEW_AUTHORIZE_URL = f"{BASE_URL}/auth/authorize-internet"
 _NEW_TOKEN_URL     = f"{BASE_URL}/auth/tokenUtilisateurInternet"
 _TOKEN_REVOKE_URL  = f"{BASE_URL}/auth/revoke"  # nouveau endpoint de révocation
 
-# ── Bases endpoints données ───────────────────────────────────────────────────
-# Legacy : /application/rest/interfaces/ael/
-_LEGACY_AEL_BASE = f"{BASE_URL}/application/rest/interfaces/ael"
-
-# Expérimental : deux namespaces distincts
+# ── Bases endpoints données (expérimental) ───────────────────────────────────
 _PRODUITS_BASE       = f"{BASE_URL}/rest/produits"        # données métier (factures, contrats…)
 _INTERFACES_AEL_BASE = f"{BASE_URL}/rest/interfaces/ael"  # mêmes données, format "interfaces"
 

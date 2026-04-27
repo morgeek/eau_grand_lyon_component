@@ -14,7 +14,7 @@
     "error": {
       "invalid_auth": "Incorrect credentials. Please check your email and password.",
       "cannot_connect": "Unable to connect to the server. Check your network.",
-      "waf_blocked": "Request blocked by web firewall. Increase update interval or wait.",
+      "waf_blocked": "Request blocked by web firewall. Increase the update interval (recommended: {recommended_interval}h) or wait a few minutes.",
       "api_error": "API error. Check the status of the Eau du Grand Lyon service.",
       "unknown": "Unknown error. Check Home Assistant logs for details."
     },
@@ -39,78 +39,232 @@
         "data_description": {
           "price_entity": "Optional: Select an entity (e.g. sensor.water_price) to use as the current price instead of the static value.",
           "experimental_api": "Enables new /rest/produits/ endpoints discovered in the 2026 Angular bundle: real invoices, daily estimated leaks, load curves. Automatic fallback to old endpoints is always active.",
-          "subscription_annual": "Annual fixed subscription cost (excluding consumption). Visible on your annual invoice. Ex: 180 €/yr. Leave at 0 to keep previous behavior."
+          "household_size": "Used to calculate the Eco-Score and personalised Eco-Coach tips.",
+          "water_hardness": "Water hardness in French degrees (°fH). Lyon average: {hardness_lyon_avg} °fH. If you have a softener, set to the output hardness (e.g. 10-15 °fH).",
+          "subscription_annual": "Annual fixed subscription cost (excluding consumption). Visible on your annual invoice. Ex. Grand Lyon 2024: ~{subscription_example} €/yr. Leave at 0 to exclude the subscription from cost calculations."
         }
       }
     }
   },
   "entity": {
     "sensor": {
-      "water_index":        { "name": "Meter index" },
-      "energy_water":       { "name": "Consumption (Energy)" },
-      "energy_cost":        { "name": "Cost (Energy)" },
-      "conso_courant":      { "name": "Current month consumption" },
-      "conso_precedent":    { "name": "Previous month consumption" },
-      "conso_annuelle":     { "name": "Annual consumption" },
-      "conso_7j":           { "name": "7-day consumption" },
-      "conso_30j":          { "name": "30-day consumption" },
-      "conso_hier":         { "name": "Yesterday's consumption" },
-      "index_journalier":   { "name": "Daily index (Energy)" },
-      "conso_moyenne_7j":   { "name": "Average daily consumption (7d)" },
-      "compatibilite_compteur": { "name": "Meter compatibility" },
-      "cout_mois":          { "name": "Current month cost" },
-      "cout_annuel":        { "name": "Estimated annual cost" },
-      "cout_cumule":        { "name": "Cumulative cost (year)" },
-      "economie":           { "name": "Potential savings" },
-      "solde":              { "name": "Account balance" },
-      "statut":             { "name": "Contract status" },
-      "date_echeance":      { "name": "Contract end date" },
-      "derniere_facture":   { "name": "Latest invoice" },
-      "fuite_estimee":      { "name": "Estimated leak (30d)" },
-      "trend":              { "name": "Trend vs last year" },
-      "prediction_conso":   { "name": "Month consumption forecast" },
-      "prediction_cost":    { "name": "Month cost forecast" },
-      "eco_score":          { "name": "Eco-Score (m³/person/month)" },
-      "co2_footprint":      { "name": "CO2 footprint" },
-      "signal":             { "name": "Téléo signal" },
-      "alertes":            { "name": "Number of alerts" },
-      "last_update":        { "name": "Last update" },
-      "health":             { "name": "Integration health" },
-      "global_conso":       { "name": "Total consumption" },
-      "global_cost":        { "name": "Total cost" },
-      "global_prediction":  { "name": "Total cost forecast" },
-      "drought":            { "name": "Drought level" },
-      "limescale":          { "name": "Cumulative limescale" },
-      "coaching":           { "name": "Eco-Coach tip" },
-      "cout_reel_mois":     { "name": "Real monthly cost (with subscription)" },
-      "cout_reel_annuel":   { "name": "Real annual cost (with subscription)" },
-      "hourly_conso":       { "name": "Last hour consumption" },
-      "peak_hour":          { "name": "Peak consumption hour" },
-      "avg_flow":           { "name": "Average hourly flow" },
-      "water_hardness_live":{ "name": "Water hardness (Open Data)" },
-      "nitrates":           { "name": "Nitrates (Open Data)" },
-      "chlore":             { "name": "Residual chlorine (Open Data)" },
-      "next_outage":        { "name": "Next service interruption" },
-      "prochaine_facture":  { "name": "Next invoice" },
-      "prochaine_releve":   { "name": "Next meter reading" },
-      "conso_annuelle_ref": { "name": "Annual reference consumption" }
+      "water_index": {
+        "name": "Meter index"
+      },
+      "energy_water": {
+        "name": "Consumption (Energy)"
+      },
+      "energy_cost": {
+        "name": "Cost (Energy)"
+      },
+      "conso_courant": {
+        "name": "Current month consumption"
+      },
+      "conso_precedent": {
+        "name": "Previous month consumption"
+      },
+      "conso_annuelle": {
+        "name": "Annual consumption"
+      },
+      "conso_7j": {
+        "name": "7-day consumption"
+      },
+      "conso_30j": {
+        "name": "30-day consumption"
+      },
+      "conso_hier": {
+        "name": "Yesterday's consumption"
+      },
+      "index_journalier": {
+        "name": "Daily index (Energy)"
+      },
+      "conso_moyenne_7j": {
+        "name": "Average daily consumption (7d)"
+      },
+      "compatibilite_compteur": {
+        "name": "Meter compatibility"
+      },
+      "cout_mois": {
+        "name": "Current month cost"
+      },
+      "cout_annuel": {
+        "name": "Estimated annual cost"
+      },
+      "cout_cumule": {
+        "name": "Cumulative cost (year)"
+      },
+      "economie": {
+        "name": "Potential savings"
+      },
+      "solde": {
+        "name": "Account balance"
+      },
+      "statut": {
+        "name": "Contract status"
+      },
+      "date_echeance": {
+        "name": "Contract end date"
+      },
+      "derniere_facture": {
+        "name": "Latest invoice"
+      },
+      "fuite_estimee": {
+        "name": "Estimated leak (30d)"
+      },
+      "trend": {
+        "name": "Trend vs last year"
+      },
+      "prediction_conso": {
+        "name": "Month consumption forecast"
+      },
+      "prediction_cost": {
+        "name": "Month cost forecast"
+      },
+      "eco_score": {
+        "name": "Eco-Score (m³/person/month)"
+      },
+      "co2_footprint": {
+        "name": "CO2 footprint"
+      },
+      "signal": {
+        "name": "Téléo signal"
+      },
+      "alertes": {
+        "name": "Number of alerts"
+      },
+      "last_update": {
+        "name": "Last update"
+      },
+      "health": {
+        "name": "Integration health"
+      },
+      "global_conso": {
+        "name": "Total consumption"
+      },
+      "global_cost": {
+        "name": "Total cost"
+      },
+      "global_prediction": {
+        "name": "Total cost forecast"
+      },
+      "drought": {
+        "name": "Drought level"
+      },
+      "limescale": {
+        "name": "Cumulative limescale"
+      },
+      "coaching": {
+        "name": "Eco-Coach tip"
+      },
+      "cout_reel_mois": {
+        "name": "Real monthly cost (with subscription)"
+      },
+      "cout_reel_annuel": {
+        "name": "Real annual cost (with subscription)"
+      },
+      "hourly_conso": {
+        "name": "Last hour consumption"
+      },
+      "peak_hour": {
+        "name": "Peak consumption hour"
+      },
+      "avg_flow": {
+        "name": "Average hourly flow"
+      },
+      "water_hardness_live": {
+        "name": "Water hardness (Open Data)"
+      },
+      "nitrates": {
+        "name": "Nitrates (Open Data)"
+      },
+      "chlore": {
+        "name": "Residual chlorine (Open Data)"
+      },
+      "next_outage": {
+        "name": "Next service interruption"
+      },
+      "prochaine_facture": {
+        "name": "Next invoice"
+      },
+      "prochaine_releve": {
+        "name": "Next meter reading"
+      },
+      "conso_annuelle_ref": {
+        "name": "Annual reference consumption"
+      }
     },
     "button": {
-      "download_invoice":   { "name": "Download latest invoice" }
+      "download_invoice": {
+        "name": "Download latest invoice"
+      }
     },
     "switch": {
-      "vacation_mode":      { "name": "Vacation mode" }
+      "vacation_mode": {
+        "name": "Vacation mode"
+      }
     },
     "calendar": {
-      "billing_events":     { "name": "Billing & Invoicing" }
+      "billing_events": {
+        "name": "Billing & Invoicing"
+      }
     },
     "binary_sensor": {
-      "leak_alert":       { "name": "Possible leak alert" },
-      "real_time_leak":   { "name": "Real-time leak detection (Téléo)" },
-      "local_leak":       { "name": "Local leak pattern alert" },
-      "battery":          { "name": "Téléo module battery" },
-      "limescale_alert":  { "name": "Limescale maintenance alert" },
-      "outage_alert":     { "name": "Service interruption (Works/Outage)" }
+      "leak_alert": {
+        "name": "Possible leak alert"
+      },
+      "real_time_leak": {
+        "name": "Real-time leak detection (Téléo)"
+      },
+      "local_leak": {
+        "name": "Local leak pattern alert"
+      },
+      "battery": {
+        "name": "Téléo module battery"
+      },
+      "limescale_alert": {
+        "name": "Limescale maintenance alert"
+      },
+      "outage_alert": {
+        "name": "Service interruption (Works/Outage)"
+      }
+    }
+  },
+  "services": {
+    "clear_cache": {
+      "name": "Clear local cache",
+      "description": "Deletes the persistent cache (history and recorded consumption) and resets the sensors."
+    },
+    "update_now": {
+      "name": "Update now",
+      "description": "Forces an immediate synchronisation with the Eau du Grand Lyon servers."
+    },
+    "export_data": {
+      "name": "Export data",
+      "description": "Exports consumption history to a local CSV file.",
+      "fields": {
+        "path": {
+          "name": "File path",
+          "description": "Full path of the CSV file (e.g. /config/exports/eau.csv)",
+          "selector": {
+            "text": {}
+          },
+          "example": "/config/exports/eau_grand_lyon_history.csv"
+        }
+      }
+    },
+    "download_latest_invoice": {
+      "name": "Download latest invoice",
+      "description": "Downloads the PDF of the most recent available invoice.",
+      "fields": {
+        "path": {
+          "name": "Destination path",
+          "description": "Full path of the PDF file (e.g. /config/www/invoice.pdf)",
+          "selector": {
+            "text": {}
+          },
+          "example": "/config/www/eau_grand_lyon/latest_invoice.pdf"
+        }
+      }
     }
   },
   "issues": {

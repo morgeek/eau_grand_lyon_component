@@ -43,25 +43,20 @@ _LOGGER = logging.getLogger(__name__)
 _EMAIL_REGEX = re.compile(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
 
 
-def validate_email(email: str) -> str:
-    """Valide le format de l'email."""
-    if not re.match(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", email):
-        raise vol.Invalid("Format d'email invalide")
-    return email
-
-
-def validate_password(password: str) -> str:
-    """Valide la complexité du mot de passe."""
-    if len(password) < 4:
-        raise vol.Invalid("Le mot de passe doit contenir au moins 4 caractères")
-    return password
+def _validate_email(value: str) -> str:
+    value = value.strip()
+    if not _EMAIL_REGEX.match(value):
+        raise vol.Invalid("invalid_email")
+    return value
 
 
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_EMAIL): str,  # no validator here
-        vol.Required(CONF_PASSWORD): vol.All(str, vol.Length(min=4)),  # Length is fine
-        vol.Optional(CONF_TARIF_M3, default=DEFAULT_TARIF_M3): vol.All(vol.Coerce(float), vol.Range(min=0.5, max=30.0)),
+        vol.Required(CONF_EMAIL): vol.All(str, _validate_email),
+        vol.Required(CONF_PASSWORD): vol.All(str, vol.Length(min=4)),
+        vol.Optional(CONF_TARIF_M3, default=DEFAULT_TARIF_M3): vol.All(
+            vol.Coerce(float), vol.Range(min=0.5, max=30.0)
+        ),
     }
 )
 
@@ -79,30 +74,6 @@ class EauGrandLyonConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 2
 
     @staticmethod
-    async def async_migrate_entry(
-        hass: HomeAssistant, config_entry: ConfigEntry  # noqa: ARG004
-    ) -> bool:
-        """Migre les anciennes config entries vers le schéma courant.
-
-        VERSION 1 → 2 :
-        - Aucune modification de données nécessaire pour l'instant.
-        - Ce scaffold existe pour permettre des migrations futures sans
-          casser les installations existantes.
-        """
-        _LOGGER.debug(
-            "Migration config entry %s de v%s vers v%s",
-            config_entry.entry_id,
-            config_entry.version,
-            EauGrandLyonConfigFlow.VERSION,
-        )
-        # Ajouter des migrations ici quand nécessaire :
-        # if config_entry.version == 1:
-        #     new_data = {**config_entry.data, "new_field": "default"}
-        #     hass.config_entries.async_update_entry(config_entry, data=new_data)
-        config_entry.version = EauGrandLyonConfigFlow.VERSION
-        return True
-
-    @staticmethod
     def async_get_options_flow(
         config_entry: ConfigEntry,
     ) -> EauGrandLyonOptionsFlowHandler:
@@ -116,43 +87,39 @@ class EauGrandLyonConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            email = user_input[CONF_EMAIL].strip()
+            email = user_input[CONF_EMAIL]  # already stripped and validated by schema
             password = user_input[CONF_PASSWORD]
 
-            jar = aiohttp.CookieJar(unsafe=True)
-            if not _EMAIL_REGEX.match(email):
-                errors[CONF_EMAIL] = "invalid_email"
-            else:
-                async with aiohttp.ClientSession(cookie_jar=jar) as session:
-                    api = EauGrandLyonApi(session, email, password)
-                    try:
-                        await api.authenticate()
-                    except AuthenticationError as err:
-                        _LOGGER.warning("Auth échouée: %s", err)
-                        errors["base"] = "invalid_auth"
-                    except WafBlockedError as err:
-                        _LOGGER.warning("Blocage WAF: %s", err)
-                        errors["base"] = "waf_blocked"
-                    except NetworkError as err:
-                        _LOGGER.warning("Erreur réseau: %s", err)
-                        errors["base"] = "cannot_connect"
-                    except ApiError as err:
-                        _LOGGER.warning("Erreur API: %s", err)
-                        errors["base"] = "api_error"
-                    except Exception as err:  # noqa: BLE001
-                        _LOGGER.exception("Erreur inattendue: %s", err)
-                        errors["base"] = "unknown"
-                    else:
-                        await self.async_set_unique_id(email.lower())
-                        self._abort_if_unique_id_configured()
-                        return self.async_create_entry(
-                            title=f"Eau du Grand Lyon ({email})",
-                            data={
-                                CONF_EMAIL: email,
-                                CONF_PASSWORD: password,
-                                CONF_TARIF_M3: user_input[CONF_TARIF_M3],
-                            },
-                        )
+            async with aiohttp.ClientSession(cookie_jar=aiohttp.CookieJar(unsafe=True)) as session:
+                api = EauGrandLyonApi(session, email, password)
+                try:
+                    await api.authenticate()
+                except AuthenticationError as err:
+                    _LOGGER.warning("Auth échouée: %s", err)
+                    errors["base"] = "invalid_auth"
+                except WafBlockedError as err:
+                    _LOGGER.warning("Blocage WAF: %s", err)
+                    errors["base"] = "waf_blocked"
+                except NetworkError as err:
+                    _LOGGER.warning("Erreur réseau: %s", err)
+                    errors["base"] = "cannot_connect"
+                except ApiError as err:
+                    _LOGGER.warning("Erreur API: %s", err)
+                    errors["base"] = "api_error"
+                except Exception as err:  # noqa: BLE001
+                    _LOGGER.exception("Erreur inattendue: %s", err)
+                    errors["base"] = "unknown"
+                else:
+                    await self.async_set_unique_id(email.lower())
+                    self._abort_if_unique_id_configured()
+                    return self.async_create_entry(
+                        title=f"Eau du Grand Lyon ({email})",
+                        data={
+                            CONF_EMAIL: email,
+                            CONF_PASSWORD: password,
+                            CONF_TARIF_M3: user_input[CONF_TARIF_M3],
+                        },
+                    )
 
         return self.async_show_form(
             step_id="user",
@@ -160,6 +127,7 @@ class EauGrandLyonConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
             description_placeholders={
                 "site_url": "https://agence.eaudugrandlyon.com",
+                "recommended_interval": str(DEFAULT_UPDATE_INTERVAL_HOURS),
             },
         )
 
@@ -227,4 +195,8 @@ class EauGrandLyonOptionsFlowHandler(config_entries.OptionsFlow):
         return self.async_show_form(
             step_id="init",
             data_schema=options_schema,
+            description_placeholders={
+                "hardness_lyon_avg": str(DEFAULT_WATER_HARDNESS),
+                "subscription_example": "180",
+            },
         )
