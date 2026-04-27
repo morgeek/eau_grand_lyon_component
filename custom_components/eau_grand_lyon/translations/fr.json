@@ -41,7 +41,9 @@
           "experimental_api": "Active les nouveaux endpoints /rest/produits/ découverts dans le bundle Angular 2026 : factures réelles, fuite estimée journalière, courbe de charge. Un fallback automatique sur les anciens endpoints est toujours actif. Désactivez si vous observez des erreurs inattendues.",
           "household_size": "Utilisé pour calculer l'Eco-Score et les conseils personnalisés de l'Eco-Coach.",
           "water_hardness": "Dureté en degrés Français (°fH). Moyenne Lyon : {hardness_lyon_avg} °fH. Si vous avez un adoucisseur, réglez sur la dureté de sortie (ex. 10-15 °fH).",
-          "subscription_annual": "Montant annuel de la partie fixe de votre abonnement eau (hors consommation). Visible sur votre facture annuelle. Ex. Grand Lyon 2024 : ~{subscription_example} €/an. Laissez à 0 pour ne pas inclure l'abonnement dans les calculs de coût."
+          "subscription_annual": "Montant annuel de la partie fixe de votre abonnement eau (hors consommation). Visible sur votre facture annuelle. Ex. Grand Lyon 2024 : ~{subscription_example} €/an. Laissez à 0 pour ne pas inclure l'abonnement dans les calculs de coût.",
+          "update_interval_hours": "Fréquence à laquelle l'intégration interroge les serveurs Eau du Grand Lyon. Les données étant mises à jour mensuellement, 24h est recommandé pour éviter tout blocage WAF.",
+          "tarif_m3": "Prix de l'eau en euros par m³, utilisé pour tous les calculs de coût estimés. Consultez votre dernière facture pour le tarif exact (Grand Lyon 2024 : ~5,20 €/m³)."
         }
       }
     }

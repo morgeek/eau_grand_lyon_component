@@ -1,6 +1,8 @@
 # Intégration Eau du Grand Lyon pour Home Assistant
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
+[![Tests](https://github.com/morgeek/eau_grand_lyon_component/actions/workflows/tests.yaml/badge.svg)](https://github.com/morgeek/eau_grand_lyon_component/actions/workflows/tests.yaml)
+[![hassfest](https://github.com/morgeek/eau_grand_lyon_component/actions/workflows/tests.yaml/badge.svg?label=hassfest)](https://github.com/morgeek/eau_grand_lyon_component/actions/workflows/tests.yaml)
 
 Ceci est une intégration personnalisée NON OFFICIELLE pour [Home Assistant](https://www.home-assistant.io/) qui fournit des capteurs pour les données de consommation d'eau du service Eau du Grand Lyon.
 

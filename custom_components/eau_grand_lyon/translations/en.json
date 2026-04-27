@@ -41,7 +41,9 @@
           "experimental_api": "Enables new /rest/produits/ endpoints discovered in the 2026 Angular bundle: real invoices, daily estimated leaks, load curves. Automatic fallback to old endpoints is always active.",
           "household_size": "Used to calculate the Eco-Score and personalised Eco-Coach tips.",
           "water_hardness": "Water hardness in French degrees (°fH). Lyon average: {hardness_lyon_avg} °fH. If you have a softener, set to the output hardness (e.g. 10-15 °fH).",
-          "subscription_annual": "Annual fixed subscription cost (excluding consumption). Visible on your annual invoice. Ex. Grand Lyon 2024: ~{subscription_example} €/yr. Leave at 0 to exclude the subscription from cost calculations."
+          "subscription_annual": "Annual fixed subscription cost (excluding consumption). Visible on your annual invoice. Ex. Grand Lyon 2024: ~{subscription_example} €/yr. Leave at 0 to exclude the subscription from cost calculations.",
+          "update_interval_hours": "How often the integration polls the Eau du Grand Lyon servers. Since data is updated monthly, 24h is recommended to avoid WAF blocking.",
+          "tarif_m3": "Water price in euros per m³, used for all estimated cost calculations. Check your latest invoice for the exact rate (Grand Lyon 2024: ~5.20 €/m³)."
         }
       }
     }
