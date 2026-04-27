@@ -1,15 +1,15 @@
 {
   "domain": "eau_grand_lyon",
   "name": "Eau du Grand Lyon",
-  "version": "2.7.0",
-  "config_flow": true,
-  "documentation": "https://github.com/morgeek/HA-Plugin-pour-Eau-du-Grand-Lyon",
-  "issue_tracker": "https://github.com/morgeek/HA-Plugin-pour-Eau-du-Grand-Lyon/issues",
-  "integration_type": "service",
-  "requirements": [],
-  "dependencies": [],
   "after_dependencies": ["recorder"],
   "codeowners": ["@morgeek"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/morgeek/HA-Plugin-pour-Eau-du-Grand-Lyon",
+  "integration_type": "service",
   "iot_class": "cloud_polling",
-  "quality_scale": "silver"
+  "issue_tracker": "https://github.com/morgeek/HA-Plugin-pour-Eau-du-Grand-Lyon/issues",
+  "quality_scale": "silver",
+  "requirements": [],
+  "version": "2.7.0"
 }
