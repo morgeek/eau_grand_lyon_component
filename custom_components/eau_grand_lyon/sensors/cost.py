@@ -14,7 +14,6 @@ class EauGrandLyonCoutMoisSensor(_EauGrandLyonBase):
     _attr_device_class = SensorDeviceClass.MONETARY
     _attr_state_class = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "EUR"
-    _attr_icon = "mdi:water-percent"
     translation_key = "cout_mois"
     _attr_suggested_display_precision = 2
 
@@ -43,7 +42,6 @@ class EauGrandLyonCoutAnnuelSensor(_EauGrandLyonBase):
     _attr_device_class = SensorDeviceClass.MONETARY
     _attr_state_class = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "EUR"
-    _attr_icon = "mdi:currency-eur"
     translation_key = "cout_annuel"
     _attr_suggested_display_precision = 2
 
@@ -71,7 +69,6 @@ class EauGrandLyonCoutCumuleSensor(_EauGrandLyonBase):
     _attr_device_class = SensorDeviceClass.MONETARY
     _attr_state_class = SensorStateClass.TOTAL_INCREASING
     _attr_native_unit_of_measurement = "EUR"
-    _attr_icon = "mdi:currency-eur"
     translation_key = "cout_cumule"
     _attr_suggested_display_precision = 2
     _attr_entity_registry_enabled_default = False
@@ -104,7 +101,6 @@ class EauGrandLyonEconomieSensor(_EauGrandLyonBase):
     _attr_device_class = SensorDeviceClass.MONETARY
     _attr_state_class = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "EUR"
-    _attr_icon = "mdi:trending-down"
     translation_key = "economie"
 
     def __init__(self, coordinator, entry, contract_ref):
@@ -138,7 +134,6 @@ class EauGrandLyonSoldeSensor(_EauGrandLyonBase):
     _attr_device_class = SensorDeviceClass.MONETARY
     _attr_state_class = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "EUR"
-    _attr_icon = "mdi:currency-eur"
     translation_key = "solde"
     _attr_suggested_display_precision = 2
 
@@ -166,7 +161,6 @@ class EauGrandLyonCoutReelMoisSensor(_EauGrandLyonBase):
     _attr_device_class = SensorDeviceClass.MONETARY
     _attr_state_class = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "EUR"
-    _attr_icon = "mdi:receipt-text-check"
     translation_key = "cout_reel_mois"
     _attr_suggested_display_precision = 2
     _attr_entity_registry_enabled_default = False
@@ -197,7 +191,6 @@ class EauGrandLyonCoutReelAnnuelSensor(_EauGrandLyonBase):
     _attr_device_class = SensorDeviceClass.MONETARY
     _attr_state_class = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "EUR"
-    _attr_icon = "mdi:receipt-text-outline"
     translation_key = "cout_reel_annuel"
     _attr_suggested_display_precision = 2
     _attr_entity_registry_enabled_default = False
@@ -227,7 +220,6 @@ class EauGrandLyonEnergyWaterSensor(_EauGrandLyonBase):
     _attr_device_class = SensorDeviceClass.WATER
     _attr_state_class = SensorStateClass.TOTAL_INCREASING
     _attr_native_unit_of_measurement = "m³"
-    _attr_icon = "mdi:water"
     translation_key = "energy_water"
     _attr_suggested_display_precision = 1
     _attr_entity_registry_enabled_default = False
@@ -257,7 +249,6 @@ class EauGrandLyonEnergyCostSensor(_EauGrandLyonBase):
     _attr_device_class = SensorDeviceClass.MONETARY
     _attr_state_class = SensorStateClass.TOTAL_INCREASING
     _attr_native_unit_of_measurement = "EUR"
-    _attr_icon = "mdi:currency-eur"
     translation_key = "energy_cost"
     _attr_suggested_display_precision = 2
     _attr_entity_registry_enabled_default = False

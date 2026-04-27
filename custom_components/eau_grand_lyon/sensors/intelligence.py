@@ -14,7 +14,6 @@ class EauGrandLyonTrendSensor(_EauGrandLyonBase):
 
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = "%"
-    _attr_icon = "mdi:trending-up"
     translation_key = "trend"
     _attr_suggested_display_precision = 1
 
@@ -41,7 +40,6 @@ class EauGrandLyonPredictionConsoSensor(_EauGrandLyonBase):
     _attr_device_class = SensorDeviceClass.WATER
     _attr_state_class = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "m³"
-    _attr_icon = "mdi:chart-bell-curve-cumulative"
     translation_key = "prediction_conso"
     _attr_suggested_display_precision = 1
 
@@ -60,7 +58,6 @@ class EauGrandLyonPredictionCostSensor(_EauGrandLyonBase):
     _attr_device_class = SensorDeviceClass.MONETARY
     _attr_state_class = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "€"
-    _attr_icon = "mdi:cash-clock"
     translation_key = "prediction_cost"
     _attr_suggested_display_precision = 2
 
@@ -76,7 +73,6 @@ class EauGrandLyonPredictionCostSensor(_EauGrandLyonBase):
 class EauGrandLyonEcoScoreSensor(_EauGrandLyonBase):
     """Note de performance environnementale (A-G)."""
 
-    _attr_icon = "mdi:leaf"
     translation_key = "eco_score"
 
     def __init__(self, coordinator, entry, contract_ref):
@@ -99,7 +95,6 @@ class EauGrandLyonEcoScoreSensor(_EauGrandLyonBase):
 class EauGrandLyonCO2FootprintSensor(_EauGrandLyonBase):
     """Empreinte carbone de la consommation d'eau (kg CO2e)."""
 
-    _attr_icon = "mdi:molecule-co2"
     _attr_state_class = SensorStateClass.TOTAL
     _attr_entity_registry_enabled_default = False
     translation_key = "co2_footprint"
@@ -128,7 +123,6 @@ class EauGrandLyonLimescaleSensor(_EauGrandLyonBase):
     _attr_device_class = SensorDeviceClass.WEIGHT
     _attr_state_class = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "g"
-    _attr_icon = "mdi:shimmer"
     _attr_entity_registry_enabled_default = False
     translation_key = "limescale"
     _attr_suggested_display_precision = 0
@@ -152,7 +146,6 @@ class EauGrandLyonLimescaleSensor(_EauGrandLyonBase):
 class EauGrandLyonCoachingSensor(_EauGrandLyonBase):
     """Conseils personnalisés basés sur l'analyse de consommation."""
 
-    _attr_icon = "mdi:account-voice"
     translation_key = "coaching"
 
     def __init__(self, coordinator, entry, contract_ref):
@@ -183,7 +176,6 @@ class EauGrandLyonSignalSensor(_EauGrandLyonBase):
 
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = "%"
-    _attr_icon = "mdi:signal-variant"
     translation_key = "signal"
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 

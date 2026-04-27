@@ -41,7 +41,6 @@ class EauGrandLyonRefreshButton(
 
     _attr_has_entity_name = True
     _attr_name = "Forcer la mise à jour"
-    _attr_icon = "mdi:refresh"
 
     def __init__(
         self,
@@ -80,7 +79,6 @@ class EauGrandLyonDownloadInvoiceButton(
 
     _attr_has_entity_name = True
     translation_key = "download_invoice"
-    _attr_icon = "mdi:file-download"
 
     def __init__(
         self,

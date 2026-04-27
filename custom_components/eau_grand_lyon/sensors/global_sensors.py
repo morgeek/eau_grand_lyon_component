@@ -15,7 +15,6 @@ class EauGrandLyonAlertesSensor(_EauGrandLyonGlobalBase):
     """Nombre d'alertes actives sur l'ensemble des contrats."""
 
     _attr_state_class = SensorStateClass.TOTAL
-    _attr_icon = "mdi:bell-alert"
     translation_key = "alertes"
     _attr_native_unit_of_measurement = "alertes"
 
@@ -34,7 +33,6 @@ class EauGrandLyonLastUpdateSensor(_EauGrandLyonGlobalBase):
     """Horodatage de la dernière synchronisation réussie."""
 
     _attr_device_class = SensorDeviceClass.TIMESTAMP
-    _attr_icon = "mdi:clock-check-outline"
     translation_key = "last_update"
 
     def __init__(self, coordinator, entry):
@@ -59,7 +57,6 @@ class EauGrandLyonLastUpdateSensor(_EauGrandLyonGlobalBase):
 class EauGrandLyonHealthSensor(_EauGrandLyonGlobalBase):
     """Statut global de l'intégration (API/connexion)."""
 
-    _attr_icon = "mdi:heart-pulse"
     translation_key = "health"
 
     def __init__(self, coordinator: EauGrandLyonCoordinator, entry: ConfigEntry) -> None:
@@ -101,7 +98,6 @@ class EauGrandLyonGlobalConsoSensor(_EauGrandLyonGlobalBase):
     _attr_device_class = SensorDeviceClass.WATER
     _attr_state_class = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "m³"
-    _attr_icon = "mdi:water-group"
     translation_key = "global_conso"
     _attr_suggested_display_precision = 1
 
@@ -120,7 +116,6 @@ class EauGrandLyonGlobalCostSensor(_EauGrandLyonGlobalBase):
     _attr_device_class = SensorDeviceClass.MONETARY
     _attr_state_class = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "€"
-    _attr_icon = "mdi:cash-multiple"
     translation_key = "global_cost"
     _attr_suggested_display_precision = 2
 
@@ -139,7 +134,6 @@ class EauGrandLyonGlobalPredictionCostSensor(_EauGrandLyonGlobalBase):
     _attr_device_class = SensorDeviceClass.MONETARY
     _attr_state_class = SensorStateClass.TOTAL
     _attr_native_unit_of_measurement = "€"
-    _attr_icon = "mdi:cash-clock"
     translation_key = "global_prediction"
     _attr_suggested_display_precision = 2
 
@@ -155,7 +149,6 @@ class EauGrandLyonGlobalPredictionCostSensor(_EauGrandLyonGlobalBase):
 class EauGrandLyonDroughtSensor(_EauGrandLyonGlobalBase):
     """Statut des restrictions d'eau (Sécheresse) dans le Rhône."""
 
-    _attr_icon = "mdi:water-off"
     translation_key = "drought"
 
     def __init__(self, coordinator, entry):
@@ -178,7 +171,6 @@ class EauGrandLyonNextOutageSensor(_EauGrandLyonGlobalBase):
     """Date de la prochaine interruption de service planifiée."""
 
     _attr_device_class = SensorDeviceClass.DATE
-    _attr_icon = "mdi:pipe-wrench"
     translation_key = "next_outage"
     _attr_entity_registry_enabled_default = False
 

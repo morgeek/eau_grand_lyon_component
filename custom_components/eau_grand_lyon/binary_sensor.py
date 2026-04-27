@@ -227,7 +227,6 @@ class EauGrandLyonOutageSensor(
 
     _attr_has_entity_name = True
     _attr_device_class = BinarySensorDeviceClass.PROBLEM
-    _attr_icon = "mdi:pipe-wrench"
     translation_key = "outage_alert"
     _attr_entity_registry_enabled_default = False
 

@@ -13,7 +13,6 @@ class EauGrandLyonWaterHardnessSensor(_EauGrandLyonWaterQualityBase):
 
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = "°fH"
-    _attr_icon = "mdi:water-opacity"
     translation_key = "water_hardness_live"
     _attr_suggested_display_precision = 1
 
@@ -43,7 +42,6 @@ class EauGrandLyonNitratesSensor(_EauGrandLyonWaterQualityBase):
 
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = "mg/L"
-    _attr_icon = "mdi:flask"
     translation_key = "nitrates"
     _attr_suggested_display_precision = 1
 
@@ -81,7 +79,6 @@ class EauGrandLyonChloreSensor(_EauGrandLyonWaterQualityBase):
 
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = "mg/L"
-    _attr_icon = "mdi:water-plus"
     translation_key = "chlore"
     _attr_suggested_display_precision = 2
 

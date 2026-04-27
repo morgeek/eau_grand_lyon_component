@@ -1,0 +1,73 @@
+{
+  "entity": {
+    "sensor": {
+      "water_index": { "default": "mdi:water-pump" },
+      "index_journalier": { "default": "mdi:counter" },
+      "conso_courant": { "default": "mdi:water" },
+      "conso_precedent": { "default": "mdi:water-outline" },
+      "conso_annuelle": { "default": "mdi:water-sync" },
+      "conso_7j": { "default": "mdi:water-sync" },
+      "conso_30j": { "default": "mdi:water-sync" },
+      "conso_moyenne_7j": { "default": "mdi:water-plus" },
+      "compatibilite_compteur": { "default": "mdi:check-network" },
+      "conso_annuelle_ref": { "default": "mdi:water-circle" },
+      "energy_water": { "default": "mdi:water-percent" },
+      "energy_cost": { "default": "mdi:currency-eur" },
+      "cout_mois": { "default": "mdi:currency-eur" },
+      "cout_annuel": { "default": "mdi:trending-down" },
+      "cout_cumule": { "default": "mdi:currency-eur" },
+      "economie": { "default": "mdi:trending-down" },
+      "cout_reel_mois": { "default": "mdi:receipt-text-check" },
+      "cout_reel_annuel": { "default": "mdi:receipt-text-outline" },
+      "statut": { "default": "mdi:file-document-check" },
+      "date_echeance": { "default": "mdi:calendar-end" },
+      "prochaine_facture": { "default": "mdi:calendar-text" },
+      "prochaine_releve": { "default": "mdi:counter" },
+      "trend": { "default": "mdi:trending-up" },
+      "eco_score": { "default": "mdi:chart-bell-curve-cumulative" },
+      "prediction_conso": { "default": "mdi:cash-clock" },
+      "prediction_cost": { "default": "mdi:cash-clock" },
+      "co2_footprint": { "default": "mdi:molecule-co2" },
+      "limescale": { "default": "mdi:shimmer" },
+      "coaching": { "default": "mdi:account-voice" },
+      "signal": { "default": "mdi:signal-variant" },
+      "alertes": { "default": "mdi:bell-alert" },
+      "derniere_facture": { "default": "mdi:clock-check-outline" },
+      "health": { "default": "mdi:heart-pulse" },
+      "global_conso": { "default": "mdi:water-group" },
+      "global_cost": { "default": "mdi:cash-multiple" },
+      "global_prediction": { "default": "mdi:cash-clock" },
+      "water_hardness": { "default": "mdi:water-opacity" },
+      "water_hardness_live": { "default": "mdi:water-opacity" },
+      "nitrates": { "default": "mdi:flask" },
+      "chlore": { "default": "mdi:water-plus" },
+      "hourly_conso": { "default": "mdi:receipt-text" },
+      "fuite_estimee": { "default": "mdi:water-alert" },
+      "peak_hour": { "default": "mdi:clock-time-four" },
+      "avg_flow": { "default": "mdi:water-flow" },
+      "derniere_facture": { "default": "mdi:receipt-text" },
+      "drought": { "default": "mdi:water-off" },
+      "next_outage": { "default": "mdi:pipe-wrench" }
+    },
+    "binary_sensor": {
+      "leak_alert": { "default": "mdi:water-alert" },
+      "real_time_leak": { "default": "mdi:water-alert" },
+      "local_leak": { "default": "mdi:water-alert" },
+      "battery": { "default": "mdi:pipe-wrench" },
+      "limescale_alert": { "default": "mdi:pipe-wrench" },
+      "outage_alert": { "default": "mdi:pipe-wrench" }
+    },
+    "button": {
+      "download_invoice": { "default": "mdi:file-download" }
+    },
+    "switch": {
+      "vacation_mode": { "default": "mdi:suitcase" }
+    }
+  },
+  "services": {
+    "clear_cache": { "service": "mdi:cached" },
+    "update_now": { "service": "mdi:refresh" },
+    "export_data": { "service": "mdi:download" },
+    "download_latest_invoice": { "service": "mdi:file-download" }
+  }
+}

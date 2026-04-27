@@ -12,7 +12,6 @@ from .base import _EauGrandLyonBase
 class EauGrandLyonStatutSensor(_EauGrandLyonBase):
     """Statut du contrat (actif, résilié, etc.)."""
 
-    _attr_icon = "mdi:file-document-check"
     translation_key = "statut"
 
     def __init__(self, coordinator, entry, contract_ref):
@@ -41,7 +40,6 @@ class EauGrandLyonDateEcheanceSensor(_EauGrandLyonBase):
     """Date d'échéance (fin) du contrat."""
 
     _attr_device_class = SensorDeviceClass.DATE
-    _attr_icon = "mdi:calendar-end"
     translation_key = "date_echeance"
 
     def __init__(self, coordinator, entry, contract_ref):
@@ -67,7 +65,6 @@ class EauGrandLyonProchaineFactureSensor(_EauGrandLyonBase):
     """Date de la prochaine facture — issue de l'API /dateProchaineFacture."""
 
     _attr_device_class = SensorDeviceClass.DATE
-    _attr_icon = "mdi:calendar-text"
     translation_key = "prochaine_facture"
 
     def __init__(self, coordinator, entry, contract_ref):
@@ -95,7 +92,6 @@ class EauGrandLyonProchaineReleveSensor(_EauGrandLyonBase):
     """Date du prochain relevé compteur — issue de /pointDeService."""
 
     _attr_device_class = SensorDeviceClass.DATE
-    _attr_icon = "mdi:counter"
     translation_key = "prochaine_releve"
 
     def __init__(self, coordinator, entry, contract_ref):

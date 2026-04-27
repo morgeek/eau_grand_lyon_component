@@ -31,7 +31,6 @@ class EauGrandLyonVacationSwitch(
     """Switch pour activer le mode vacances (surveillance renforcée)."""
 
     _attr_has_entity_name = True
-    _attr_icon = "mdi:suitcase"
     translation_key = "vacation_mode"
 
     def __init__(self, coordinator: EauGrandLyonCoordinator, entry: ConfigEntry) -> None:
