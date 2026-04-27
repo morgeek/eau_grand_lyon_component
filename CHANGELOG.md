@@ -5,6 +5,39 @@ Tous les changements notables apportés à cette intégration seront documentés
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 et cette intégration adhère au [Versionnage Sémantique](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.0] - 2026-04-27
+
+### Certification Gold ⭐ Home Assistant
+
+L'intégration atteint le **niveau Gold** de la [Qualité Scale Home Assistant](https://developers.home-assistant.io/docs/core/integration-quality-scale/).
+
+### Nouvelles Fonctionnalités Gold
+
+#### Flux de Configuration Améliorés
+- **Réauthentification** (`async_step_reauth`) : Lorsque vos identifiants expirent, vous pouvez les mettre à jour sans supprimer l'intégration
+- **Reconfiguration** (`async_step_reconfigure`) : Modifiez email, mot de passe et tarif après la configuration initiale
+- **Gestion d'Erreurs** : Les 4 services lèvent maintenant `HomeAssistantError` / `ServiceValidationError` pour un meilleur suivi des erreurs
+
+#### Interface Utilisateur
+- **Icons Traduites** : Nouveau fichier `icons.json` — les icônes sont désormais gérées par traduction, pas en Python
+- **Exceptions Traduites** : Messages d'erreur en français et anglais pour les services et les flux
+
+#### Entités Catégorisées
+- **Sensors Diagnostiques** : Les capteurs techniques (tendance, prédictions, alertes, santé) sont maintenant marqués `DIAGNOSTIC` et désactivés par défaut
+- **Sélecteur Parallèle** : `PARALLEL_UPDATES = 0` sur tous les platforms pour conformité avec le coordinateur
+
+#### Documentation Complète
+- **Mise à jour des données** : Explique l'intervalle, la gestion du WAF et le cache persistant
+- **Appareils supportés** : Tableau Téléo vs Standard avec comparaison des capacités
+- **Limitations connues** : Clarité sur les données mensuelles, le WAF, et les 12 mois historiques
+- **Dépannage détaillé** : Solutions pour les erreurs courantes (HORS-LIGNE, identifiants, WAF)
+- **Exemples pratiques** : Alertes fuites, budgets, dashboards, exports et formules Jinja
+
+### Qualité & Tests
+- 113 tests pytest couvrant tous les capteurs critiques
+- Validation hassfest complète (manifest, sélecteurs, traductions)
+- Intégration CI/CD (GitHub Actions — pytest, hassfest, HACS)
+
 ## [2.7.0] - 2026-04-27
 
 ### Refonte Architecturale
