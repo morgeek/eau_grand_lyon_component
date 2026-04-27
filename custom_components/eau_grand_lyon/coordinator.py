@@ -99,6 +99,10 @@ class EauGrandLyonCoordinator(DataUpdateCoordinator[dict]):
                 "consommations_journalieres":  list[dict],   # [] si non disponible
                 "consommation_7j":             float | None,
                 "consommation_30j":            float | None,
+                # — Consommations horaires (Téléo uniquement) —
+                "consommation_derniere_heure_m3": float | None,
+                "heure_pic":                   str | None,
+                "debit_moyen_m3h":             float | None,
                 # — Coûts estimés —
                 "cout_mois_courant_eur":       float | None,
                 "cout_annuel_eur":             float | None,
@@ -111,11 +115,20 @@ class EauGrandLyonCoordinator(DataUpdateCoordinator[dict]):
             },
             ...
         },
+        "global":                   dict,    # Agrégats multi-contrats (nb_contracts, totaux)
+        "drought_level":            str,     # Niveau de sécheresse (Ex: "Vigilance")
+        "vacation_alert":           bool,    # Alerte si conso anormalement basse
         "nb_alertes":               int,
+        "interruptions":            list[dict], # Coupures/travaux prévus
+        "prochaine_coupure":        dict | None, # Prochaine interruption
+        "interventions_planifiees": list[dict], # Interventions du gestionnaire
+        "water_quality":            dict,    # Qualité de l'eau (Open Data Lyon)
         "last_update_success_time": datetime | None,
         "last_error":               str | None,
         "last_error_type":          str | None,
-        "experimental_mode":        bool,   # indique si le mode expérimental est actif
+        "consecutive_failures":     int,     # Nombre d'échecs consécutifs
+        "experimental_mode":        bool,    # indique si le mode expérimental est actif
+        "api_mode":                 str,     # "Legacy" ou "Experimental (2026)"
         # — Mode hors-ligne —
         "offline_mode":             bool,
         "offline_since":            datetime | None,
@@ -464,7 +477,7 @@ class EauGrandLyonCoordinator(DataUpdateCoordinator[dict]):
         last_12        = consos[-12:] if len(consos) >= 12 else consos
         conso_annuelle = round(sum(e["consommation_m3"] for e in last_12), 1)
 
-        current_year        = datetime.now().year
+        current_year        = datetime.now(timezone.utc).year
         conso_cumulee_annee = round(
             sum(e["consommation_m3"] for e in consos if e.get("annee") == current_year), 1
         )
@@ -649,10 +662,10 @@ class EauGrandLyonCoordinator(DataUpdateCoordinator[dict]):
         """Calcule les tendances et prédictions."""
         if current is None:
             return None, None, None
-            
+
         tendance = round(((current - n1) / n1) * 100, 1) if n1 and n1 > 0 else None
-        
-        now = datetime.now()
+
+        now = datetime.now(timezone.utc)
         last_data_date = now
         if daily:
             try:
@@ -733,7 +746,7 @@ class EauGrandLyonCoordinator(DataUpdateCoordinator[dict]):
 
     def _get_drought_level(self) -> str:
         """Détermine le niveau de sécheresse simulé."""
-        current_month = datetime.now().month
+        current_month = datetime.now(timezone.utc).month
         return "Vigilance" if 6 <= current_month <= 9 else "Normal"
 
     def _get_real_monthly_cost(self, conso_courant: float | None, tarif_m3: float) -> float | None:

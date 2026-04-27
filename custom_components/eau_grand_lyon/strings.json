@@ -317,5 +317,35 @@
         "name": "Interruption de service (Travaux/Coupure)"
       }
     }
+  },
+  "services": {
+    "clear_cache": {
+      "name": "Effacer le cache local",
+      "description": "Supprime le cache persistant (historique et consommations enregistrées) et réinitialise les capteurs."
+    },
+    "update_now": {
+      "name": "Mettre à jour maintenant",
+      "description": "Force une synchronisation immédiate avec les serveurs Eau du Grand Lyon."
+    },
+    "export_data": {
+      "name": "Exporter les données",
+      "description": "Exporte l'historique des consommations vers un fichier CSV local.",
+      "fields": {
+        "path": {
+          "name": "Chemin du fichier",
+          "description": "Chemin complet du fichier CSV (ex. /config/exports/eau.csv)"
+        }
+      }
+    },
+    "download_latest_invoice": {
+      "name": "Télécharger la dernière facture",
+      "description": "Télécharge le PDF de la dernière facture disponible.",
+      "fields": {
+        "path": {
+          "name": "Chemin de destination",
+          "description": "Chemin complet du fichier PDF (ex. /config/www/facture.pdf)"
+        }
+      }
+    }
   }
 }
