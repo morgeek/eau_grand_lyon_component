@@ -1,18 +1,18 @@
 # Intégration Eau du Grand Lyon pour Home Assistant
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
-[![Tests](https://github.com/morgeek/eau_grand_lyon_component/actions/workflows/tests.yaml/badge.svg)](https://github.com/morgeek/eau_grand_lyon_component/actions/workflows/tests.yaml)
-[![hassfest](https://github.com/morgeek/eau_grand_lyon_component/actions/workflows/tests.yaml/badge.svg?label=hassfest)](https://github.com/morgeek/eau_grand_lyon_component/actions/workflows/tests.yaml)
+[![Tests](https://github.com/morgeek/HA-Plugin-pour-Eau-du-Grand-Lyon/actions/workflows/tests.yaml/badge.svg)](https://github.com/morgeek/HA-Plugin-pour-Eau-du-Grand-Lyon/actions/workflows/tests.yaml)
+[![hassfest](https://github.com/morgeek/HA-Plugin-pour-Eau-du-Grand-Lyon/actions/workflows/tests.yaml/badge.svg?label=hassfest)](https://github.com/morgeek/HA-Plugin-pour-Eau-du-Grand-Lyon/actions/workflows/tests.yaml)
 
 Ceci est une intégration personnalisée NON OFFICIELLE pour [Home Assistant](https://www.home-assistant.io/) qui fournit des capteurs pour les données de consommation d'eau du service Eau du Grand Lyon.
 
-![alt text](https://raw.githubusercontent.com/morgeek/eau_grand_lyon_component/main/docs/screenshots/HA-Eau-Grand-Lyon.png)
+![alt text](https://raw.githubusercontent.com/morgeek/HA-Plugin-pour-Eau-du-Grand-Lyon/main/docs/screenshots/HA-Eau-Grand-Lyon.png)
 
-![alt text](https://raw.githubusercontent.com/morgeek/eau_grand_lyon_component/main/docs/screenshots/HA-Eau-Grand-Lyon2.png)
+![alt text](https://raw.githubusercontent.com/morgeek/HA-Plugin-pour-Eau-du-Grand-Lyon/main/docs/screenshots/HA-Eau-Grand-Lyon2.png)
 
-![alt text](https://raw.githubusercontent.com/morgeek/eau_grand_lyon_component/main/docs/screenshots/HA-Eau-Grand-Lyon3.png)
+![alt text](https://raw.githubusercontent.com/morgeek/HA-Plugin-pour-Eau-du-Grand-Lyon/main/docs/screenshots/HA-Eau-Grand-Lyon3.png)
 
-![alt text](https://raw.githubusercontent.com/morgeek/eau_grand_lyon_component/main/docs/screenshots/HA-Eau-Grand-Lyon4.png)
+![alt text](https://raw.githubusercontent.com/morgeek/HA-Plugin-pour-Eau-du-Grand-Lyon/main/docs/screenshots/HA-Eau-Grand-Lyon4.png)
 
 ## Historique des versions
 
@@ -134,7 +134,7 @@ L'intégration inclut désormais des **Blueprints** (modèles d'automatisation) 
 > **IMPORTANT** : Avant d'installer cette intégration ou toute autre extension personnalisée, effectuez toujours une **sauvegarde complète (Backup)** de votre configuration Home Assistant. L'auteur ne peut être tenu responsable en cas de perte de données ou d'instabilité de votre instance.
 
 ### Option 1 : Installation à l'ancienne
-1. Téléchargez la dernière version depuis le [dépôt GitHub](https://github.com/morgeek/eau_grand_lyon_component).
+1. Téléchargez la dernière version depuis le [dépôt GitHub](https://github.com/morgeek/HA-Plugin-pour-Eau-du-Grand-Lyon).
 2. Extrayez **l'intégralité** du dossier `custom_components/eau_grand_lyon/` (y compris le sous-dossier `sensors/`) dans le répertoire `custom_components/` de votre Home Assistant.
 3. Redémarrez Home Assistant.
 
