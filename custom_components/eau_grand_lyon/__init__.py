@@ -17,6 +17,9 @@ _LOGGER = logging.getLogger(__name__)
 
 EauGrandLyonConfigEntry = ConfigEntry[EauGrandLyonCoordinator]
 
+# This integration only supports config entries, no YAML configuration
+CONFIG_SCHEMA = {}  # type: ignore[assignment]
+
 PLATFORMS: list[Platform] = [
 
     Platform.SENSOR, 

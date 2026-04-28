@@ -6,7 +6,6 @@
   "config_flow": true,
   "dependencies": [],
   "documentation": "https://github.com/morgeek/HA-Plugin-pour-Eau-du-Grand-Lyon",
-  "homeassistant": "2024.4.0",
   "integration_type": "service",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/morgeek/HA-Plugin-pour-Eau-du-Grand-Lyon/issues",
