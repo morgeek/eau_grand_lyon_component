@@ -54,6 +54,10 @@ def _stub_homeassistant() -> None:
         OptionsFlow=MagicMock,
     )
     _make_module("homeassistant.helpers")
+    _make_module(
+        "homeassistant.helpers.config_validation",
+        config_entry_only_config_schema=lambda domain: (lambda cfg: cfg),
+    )
     _make_module("homeassistant.helpers.typing", ConfigType=MagicMock)
     _make_module("homeassistant.helpers.storage", Store=MagicMock)
     _make_module("homeassistant.helpers.device_registry", DeviceInfo=MagicMock)

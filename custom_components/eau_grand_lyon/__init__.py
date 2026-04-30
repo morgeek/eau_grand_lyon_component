@@ -5,11 +5,10 @@ import csv
 import logging
 import os
 
-import voluptuous as vol
-
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, HomeAssistantError, ServiceValidationError
+from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.typing import ConfigType
 
 from .const import DOMAIN
@@ -20,10 +19,7 @@ _LOGGER = logging.getLogger(__name__)
 EauGrandLyonConfigEntry = ConfigEntry[EauGrandLyonCoordinator]
 
 # This integration only supports config entries, no YAML configuration
-CONFIG_SCHEMA = vol.Schema(
-    {vol.Optional(DOMAIN): vol.Schema({})},
-    extra=vol.ALLOW_EXTRA,
-)
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 PLATFORMS: list[Platform] = [
 
